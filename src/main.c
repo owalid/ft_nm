@@ -6,9 +6,37 @@
 
 void    process_64(char *ptr, Elf64_Ehdr *elf_header)
 {
-    Elf64_Shdr* section_header_table = (Elf64_Shdr*) ((char*) elf_header + elf_header->e_ehsize);
+    Elf64_Shdr* section_ht = (Elf64_Shdr*) ((char*) elf_header + elf_header->e_ehsize);
 
-    printf("section_header_table.sh_size = %d", elf_header->e_shnum);
+    printf("elf_header =\n");
+    printf("elf_header->e_ident =        %s\n", elf_header->e_ident);
+	printf("elf_header->e_type =         %d\n", elf_header->e_type);
+	printf("elf_header->e_machine =      %d\n", elf_header->e_machine);
+	printf("elf_header->e_version =      %d\n", elf_header->e_version);
+    printf("elf_header->e_entry =        %lx\n", elf_header->e_entry);
+	printf("elf_header->e_phoff =        %lx\n", elf_header->e_phoff);
+	printf("elf_header->e_shoff =        %lx\n", elf_header->e_shoff);
+    printf("elf_header->e_flags =        %s\n", elf_header->e_flags);
+    printf("elf_header->e_ehsize =       %d\n", elf_header->e_ehsize);
+    printf("elf_header->e_phentsize =    %d\n", elf_header->e_phentsize);
+	printf("elf_header->e_phnum =        %x\n", elf_header->e_phnum);
+	printf("elf_header->e_shentsize =    %x\n", elf_header->e_shentsize);
+	printf("elf_header->e_shnum =        %x\n", elf_header->e_shnum);
+	printf("elf_header->e_shstrndx =     %x\n", elf_header->e_shstrndx);
+    printf("elf_header->e_ehsize =       %d\n", elf_header->e_ehsize);
+	printf("elf_header->e_phnum =        %d\n", elf_header->e_phnum);
+
+
+    printf("\n\n\nsection_ht =\n");
+    printf("section_ht->sh_name =           %d\n", section_ht->sh_name);
+    printf("section_ht->sh_type =           %d\n", section_ht->sh_type);
+    printf("section_ht->sh_flags =          %d\n", section_ht->sh_flags);
+    printf("section_ht->sh_addr =           %d\n", section_ht->sh_addr);
+    printf("section_ht->sh_size =           %d\n", section_ht->sh_size);
+    printf("section_ht->sh_link =           %d\n", section_ht->sh_link);
+    printf("section_ht->sh_info =           %d\n", section_ht->sh_info);
+    printf("section_ht->sh_addralign =      %d\n", section_ht->sh_addralign);
+    printf("section_ht->sh_entsize =        %d\n", section_ht->sh_entsize);
 }
 
 
