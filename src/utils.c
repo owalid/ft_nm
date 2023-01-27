@@ -28,16 +28,32 @@ void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
         c = 'C';
     else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE))
+    {
         c = 'B';
+        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+            c = 'b';
+    }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == SHF_ALLOC)
+    {
         c = 'R';
+        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+            c = 'r';
+    }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE))
+    {
         c = 'D';
+        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+            c = 'd';
+    }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR))
+    {
         c = 'T';
+        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+            c = 't';
+    }
     else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
         c = 'D';
     else
@@ -109,8 +125,10 @@ void		ft_sort_sym_array(Elf64_Sym *tab, int size, char *str)
 
             while(l < len_current && l < len_next && low_current[l + j] == low_next[k + l])
                 l++;
-    
-            if (options->should_reverse)
+
+            if (low_current[j+l] - low_next[k+l] == 0)
+                comp = len_current < len_next;
+            else if (options->should_reverse)
                 comp = low_current[j+l] - low_next[k+l] < 0;
             else
                 comp = low_current[j+l] - low_next[k+l] > 0;
