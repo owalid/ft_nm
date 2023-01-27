@@ -173,53 +173,14 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
         //? ?
 
         if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
-        {
-            // print_symbol(sym[i], shdr, str);
-            // array[j++] = sym[]
             array[j++] = sym[i];
-            // ft_memcpy(&array[j++], &sym[i], sizeof(Elf64_Sym));
-            // array[i] = sym[i];
-            // len_tab++;
-            // if (sym[i].st_value)
-            // {
-            //     get_formated_sym_value(sym[i].st_value, current_sym_value); 
-            //     printf("%s\t", current_sym_value);
-            // }
-            // else
-            //     printf("\t\t\t");
-            // print_type(sym[i], shdr);
-            // printf("%s\n", str + sym[i].st_name);
-            // printf("%s\n", str);
-            // printf("st_info = %d \n", sym[i].st_info);
-            // printf("ELF64_ST_BIND(st_info) = %d\n", ELF64_ST_BIND(sym[i].st_info));
-            // printf("ELF64_ST_TYPE(st_info) = %d\n", ELF64_ST_TYPE(sym[i].st_info));
-            // printf("st_other = %d \n", sym[i].st_other);
-            // printf("st_shndx = %d \n", sym[i].st_shndx);
-            // printf("st_size = %d \n", sym[i].st_size);
-            // printf("\n");
-        }
     }
 
-    // printf("here lol\n");
-
     ft_sort_sym_table(array, len_array, str);
-    // printf("hello world after sort ?\n");
 
     for (i = 0; i < len_array; i++)
     {
-        // if (array[i].st_value)
-        //     printf("here");
         print_symbol(array[i], shdr, str);
-    // //     // printf("hello in for loop");
-    // //     // if (array[i].st_value)
-    // //     // {
-    // //     //     // get_formated_sym_value(array[i].st_value, current_sym_value); 
-    // //     //     // printf("%s\t", current_sym_value);
-    // //     // }
-    // //     // else
-    // //     //     printf("\t\t\t");
-    // //     // print_type(array[i], shdr);
-    // //     // printf("%s\n", str + array[i].st_name);
     }
 
 }
