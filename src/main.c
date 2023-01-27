@@ -114,16 +114,19 @@ void    print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
 {
     char current_sym_value[17];
 
-    if (sym.st_value)
+    if (sym.st_name)
     {
-        ft_bzero(current_sym_value, 17);
-        get_formated_sym_value(sym.st_value, current_sym_value); 
-        printf("%s ", current_sym_value);
+        if (sym.st_value)
+        {
+            ft_bzero(current_sym_value, 17);
+            get_formated_sym_value(sym.st_value, current_sym_value); 
+            printf("%s ", current_sym_value);
+        }
+        else
+            printf("\t\t ");
+        print_type(sym, shdr);
+        printf("%s\n", str + sym.st_name);
     }
-    else
-        printf("\t\t ");
-    print_type(sym, shdr);
-    printf("%s\n", str + sym.st_name);
 }
 
 
@@ -166,8 +169,6 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
     printf("sh_size = %lu, sh_offset = %lu\n\n", symtab->sh_size/ sizeof(Elf64_Sym), symtab->sh_offset/ sizeof(Elf64_Sym));
 
     for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) { // loop over symtab to get symbol name
-        
-        
         //? -u option ?
         // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
         //? ?
@@ -178,10 +179,9 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
 
     ft_sort_sym_table(array, len_array, str);
 
+    printf("len_array = %d\n", len_array);
     for (i = 0; i < len_array; i++)
-    {
         print_symbol(array[i], shdr, str);
-    }
 
 }
 
