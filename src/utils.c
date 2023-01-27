@@ -5,57 +5,67 @@
 void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
 {
     char  c;
+    unsigned char st_bind = ELF64_ST_BIND(sym.st_info);
+    char st_type = ELF64_ST_TYPE(sym.st_info);
 
-    if (ELF64_ST_BIND(sym.st_info) == STB_GNU_UNIQUE)
+
+    // If lowercase, the symbol is usually local
+    // If uppercase, the symbol is global (external)
+
+    if (st_bind == STB_GNU_UNIQUE)
         c = 'u';
-    else if (ELF64_ST_BIND(sym.st_info) == STB_WEAK)
+    else if (st_bind == STB_WEAK) // The symbol is a weak symbol that has not been specifically tagged as a weak object symbol. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
     {
         c = 'W';
         if (sym.st_shndx == SHN_UNDEF)
             c = 'w';
     }
-    else if (ELF64_ST_BIND(sym.st_info) == STB_WEAK && ELF64_ST_TYPE(sym.st_info) == STT_OBJECT)
+    else if (st_bind == STB_WEAK && st_type == STT_OBJECT) // The symbol is a weak object. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
     {
         c = 'V';
         if (sym.st_shndx == SHN_UNDEF)
             c = 'v';
     }
-    else if (sym.st_shndx == SHN_UNDEF)
+    else if (sym.st_shndx == SHN_UNDEF) // The symbol is undefined.
         c = 'U';
-    else if (sym.st_shndx == SHN_ABS)
+    else if (sym.st_shndx == SHN_ABS) //  value is absolute, and will not be changed by further linking
         c = 'A';
-    else if (sym.st_shndx == SHN_COMMON)
+    else if (sym.st_shndx == SHN_COMMON) // The symbol is common. Common symbols are uninitialized data.
         c = 'C';
     else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
-        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE))
+        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the BSS data section. This section typically contains zero-initialized or uninitialized data
     {
         c = 'B';
-        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+        if (st_bind == STB_LOCAL)
             c = 'b';
     }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == SHF_ALLOC)
     {
         c = 'R';
-        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+        if (st_bind == STB_LOCAL)
             c = 'r';
     }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
-        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE))
+        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
     {
         c = 'D';
-        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+        if (st_bind == STB_LOCAL)
             c = 'd';
     }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
-        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR))
+        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // The symbol is in the text (code) section. 
     {
         c = 'T';
-        if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+        if (st_bind == STB_LOCAL)
             c = 't';
     }
-    else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
-        c = 'D';
+    // else if () // The symbol is in an initialized data section for small objects.
+    //     c = 'G';
+    // else if () // The symbol is a unique global symbol. This is a GNU extension to the standard set of ELF symbol bindings. 
+    //     c = 'u';
+    // else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
+    //     c = 'D';
     else
         c = 'd';
 
