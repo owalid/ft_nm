@@ -2,6 +2,7 @@
   "files.associations": {
     "*.ejs": "html",
     "*.vue": "vue",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "stat.h": "c"
   }
 }
