@@ -20,8 +20,8 @@ def process_command(number, platform):
         print(Fore.RED, end='')
         print('============= FAIL ===============')
         print(f'binary number {number}, platform {platform}')
-        print(result_mine)
-        print(result_nm)
+        # print(result_mine)
+        # print(result_nm)
         print(e)
         print('============= FAIL ===============')
         return

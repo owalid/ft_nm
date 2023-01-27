@@ -45,5 +45,10 @@ void            print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str);
 // ---
 void            process_64(char *ptr, Elf64_Ehdr *ehdr);
 
+// ---
+// elf32.c
+// ---
+void            process_32(char *ptr, Elf32_Ehdr *ehdr);
+
 
 #endif

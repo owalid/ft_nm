@@ -1,7 +1,7 @@
 NAME	= ft_nm
 
 SRC		= main.c \
-			elf64.c \
+			elf64.c elf32.c \
 			utils.c
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))

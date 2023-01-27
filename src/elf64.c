@@ -14,7 +14,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
         if (shdr[i].sh_size) {
-            printf("%s\n", &shstrtab[shdr[i].sh_name]);
+            // printf("%s\n", &shstrtab[shdr[i].sh_name]);
 
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf64_Shdr*) &shdr[i];
@@ -23,7 +23,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
         }
     }
 
-    printf("\n\n");
+    // printf("\n\n");
     Elf64_Sym *sym = (Elf64_Sym*) (ptr + symtab->sh_offset); // get symbols
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 
@@ -34,12 +34,12 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
         if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
             len_array++;
     }
-    printf("here\n");
+    // printf("here\n");
     Elf64_Sym array[len_array+1];
 
     ft_bzero(&array, sizeof(Elf64_Sym)*(len_array+1));
 
-    printf("sh_size = %lu, sh_offset = %lu\n\n", symtab->sh_size / sizeof(Elf64_Sym), symtab->sh_offset/ sizeof(Elf64_Sym));
+    // printf("sh_size = %lu, sh_offset = %lu\n\n", symtab->sh_size / sizeof(Elf64_Sym), symtab->sh_offset/ sizeof(Elf64_Sym));
 
     for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) { // loop over symtab to get symbol name
         //? -u option ?
@@ -52,7 +52,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
 
     ft_sort_sym_array(array, len_array, str);
 
-    printf("len_array = %d\n", len_array);
+    // printf("len_array = %d\n", len_array);
     for (i = 0; i < len_array; i++)
         print_symbol(array[i], shdr, str);
 

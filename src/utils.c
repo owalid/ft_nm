@@ -1,6 +1,7 @@
 # include "ft_nm.h"
 # include "libft.h"
 
+// TODO REDO THIS FUNCTION
 void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
 {
     char  c;
@@ -62,8 +63,6 @@ void    print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
             printf("\t\t ");
         print_type(sym, shdr);
         printf("%s\n", str + sym.st_name);
-    } else {
-        printf("lol");
     }
 }
 
