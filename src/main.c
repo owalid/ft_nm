@@ -38,7 +38,6 @@ int main(int argc, char* argv[]) {
         perror("mmap failed");
         return 1;
     }
-
     if (ptr[EI_CLASS] == ELFCLASS32) {
         Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
         process_32(ptr, elf_header);
@@ -48,7 +47,7 @@ int main(int argc, char* argv[]) {
         process_64(ptr, elf_header);
         // printf("\nelf 64\n");
     } else {
-        printf("Invalid ELF class\n");
+        ft_putendl("Invalid ELF class");
     }
 
     munmap(ptr, st.st_size);

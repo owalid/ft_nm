@@ -126,7 +126,12 @@ void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
         c = ft_tolower(c);
     }
 
-    printf(" %c ", c);
+    char final[4];
+    ft_bzero(final, 4);
+    ft_memset(final, 0, 4);
+    ft_memset(final, ' ', 3);
+    final[1] = c;
+    ft_putstr(final);
 }
 
 
@@ -139,8 +144,8 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
         if (sym.st_value)
         {
             ft_bzero(current_sym_value, 17);
-            get_formated_sym_value(sym.st_value, current_sym_value, 16); 
-            printf("%s", current_sym_value);
+            get_formated_sym_value(sym.st_value, current_sym_value, 64); 
+            ft_putstr(current_sym_value);
         }
         else
         {
@@ -148,11 +153,10 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
             ft_bzero(spaces, 17);
             for (int i = 0; i < 16; i++)
                 spaces[i] = ' ';
-            // write(1, spaces, 16);
-            printf("%s", spaces);
+            ft_putstr(spaces);
         }
         print_type_64(sym, shdr);
-        printf("%s\n", str + sym.st_name);
+        ft_putendl(str + sym.st_name);
     }
 }
 

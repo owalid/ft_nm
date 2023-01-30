@@ -1,15 +1,21 @@
 #include "ft_nm.h"
 #include "libft.h"
 
-
-
 void    process_32(char *ptr, Elf32_Ehdr *ehdr)
 {
     Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
     Elf32_Shdr *symtab, *strtab; // declare symbol tab and str tab
+    Elf32_Shdr *sh_strtab = shdr + ehdr->e_shstrndx;
     Elf32_Sym *sym; // symbols
-    char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
+    char *shstrtab;
 
+    if (!ptr || !shdr || !(*ptr) || !sh_strtab
+        || !(shstrtab = (char*)(ptr + sh_strtab->sh_offset)))
+    {
+        // get the section header str tab
+        printf("ft_nm: no symbols");
+        exit(1);
+    }
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
@@ -124,23 +130,26 @@ void            print_type_32(Elf32_Sym sym, Elf32_Shdr *shdr)
         c = ft_tolower(c);
     }
 
-    printf(" %c ", c);
+    char final[4];
+    ft_bzero(final, 4);
+    ft_memset(final, 0, 4);
+    ft_memset(final, ' ', 3);
+    final[1] = c;
+    ft_putstr(final);
 }
 
 
 void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 {
-    char current_sym_value[17];
+    char current_sym_value[9];
 
     if (sym.st_name)
     {
-        // printf("%d", sym.st_value);
-        // exit(0);
         if (sym.st_value)
         {
             ft_bzero(current_sym_value, 9);
-            get_formated_sym_value(sym.st_value, current_sym_value, 32); 
-            printf("%s", current_sym_value);
+            get_formated_sym_value(sym.st_value, current_sym_value, 32);
+            ft_putstr(current_sym_value);
         }
         else
         {
@@ -148,11 +157,10 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
             ft_bzero(spaces, 9);
             for (int i = 0; i < 8; i++)
                 spaces[i] = ' ';
-            // write(1, spaces, 16);
-            printf("%s", spaces);
+            ft_putstr(spaces);
         }
         print_type_32(sym, shdr);
-        printf("%s\n", str + sym.st_name);
+        ft_putendl(str + sym.st_name);
     }
 }
 
