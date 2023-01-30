@@ -12,6 +12,7 @@
 
 # define ERROR_MMAP "Error mmap failed."
 # define ERROR_ELF_CLASS "Invalid ELF class"
+# define ERROR_NO_SYM "No symbol"
 
 
 typedef struct		s_ft_nm_symbols

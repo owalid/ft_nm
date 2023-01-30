@@ -165,15 +165,32 @@ void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str)
 
 void    process_32(char *ptr, Elf32_Ehdr *ehdr)
 {
-    Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
-    Elf32_Shdr *symtab, *strtab; // declare symbol tab and str tab
-    Elf32_Shdr *sh_strtab = &shdr[ehdr->e_shstrndx];
+    int is_little_indian = (ptr[EI_DATA] != 1);
+    unsigned int e_shoff = (is_little_indian) ? swap32(ehdr->e_shoff) : ehdr->e_shoff;
+    Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + e_shoff); // get the section header
+    Elf32_Shdr *symtab = NULL, *strtab = NULL; // declare symbol tab and str tab
     Elf32_Sym *sym; // symbols
     char *shstrtab;
 
+    int len = (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
+    for (int i = 0; i < len; i++)
+    {
+        if (shdr[i].sh_type == SHT_SYMTAB) {
+            symtab = (Elf32_Sym *)((char *)ptr + shdr[i].sh_offset);
+            break;
+        }
+    }
+
+    if (!symtab)
+        print_error(ERROR_NO_SYM);
+    
+    if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
+        exit(0);
+
+    // printf("sh_strtab = %d", shdr->sh_size);
+
     // get the section header str tab
-    if (!ptr || !shdr || !(*ptr) || !sh_strtab
-        || !(shstrtab = (char*)(ptr + sh_strtab->sh_offset)))
+    if (!ptr)
         print_error(ERROR_ELF_CLASS);
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
@@ -185,7 +202,8 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
                 strtab = (Elf32_Shdr*) &shdr[i];
         }
     }
-
+    if (!symtab || !strtab)
+        print_error(ERROR_NO_SYM);
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf32_Sym*) (ptr + symtab->sh_offset)))
         print_error(ERROR_ELF_CLASS);
     
