@@ -1,58 +1,6 @@
 #include "ft_nm.h"
 #include "libft.h"
 
-void    process_32(char *ptr, Elf32_Ehdr *ehdr)
-{
-    Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
-    Elf32_Shdr *symtab, *strtab; // declare symbol tab and str tab
-    Elf32_Shdr *sh_strtab = shdr + ehdr->e_shstrndx;
-    Elf32_Sym *sym; // symbols
-    char *shstrtab;
-
-    // get the section header str tab
-    if (!ptr || !shdr || !(*ptr) || !sh_strtab
-        || !(shstrtab = (char*)(ptr + sh_strtab->sh_offset)))
-        print_error(ERROR_ELF_CLASS);
-
-    for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
-    {
-        if (shdr[i].sh_size) {
-            if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
-                symtab = (Elf32_Shdr*) &shdr[i];
-            else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
-                strtab = (Elf32_Shdr*) &shdr[i];
-        }
-    }
-
-    if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf32_Sym*) (ptr + symtab->sh_offset)))
-        print_error(ERROR_ELF_CLASS);
-    
-    char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
-
-    int len_array = 0, i = 0, j = 0;
-
-    for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++)
-    {
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
-            len_array++;
-    }
-    Elf32_Sym array[len_array+1];
-    ft_bzero(&array, sizeof(Elf32_Sym)*(len_array+1));
-
-    for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++) { // loop over symtab to get symbol name
-        //? -u option ?
-        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
-        //? ?
-
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
-            array[j++] = sym[i];
-    }
-
-    ft_sort_sym_array_32(array, len_array, str);
-
-    for (i = 0; i < len_array; i++)
-        print_symbol_32(array[i], shdr, str);
-}
 
 
 void            print_type_32(Elf32_Sym sym, Elf32_Shdr *shdr)
@@ -213,4 +161,57 @@ void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str)
             k = 0;
             l = 0;
 	}
+}
+
+void    process_32(char *ptr, Elf32_Ehdr *ehdr)
+{
+    Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
+    Elf32_Shdr *symtab, *strtab; // declare symbol tab and str tab
+    Elf32_Shdr *sh_strtab = &shdr[ehdr->e_shstrndx];
+    Elf32_Sym *sym; // symbols
+    char *shstrtab;
+
+    // get the section header str tab
+    if (!ptr || !shdr || !(*ptr) || !sh_strtab
+        || !(shstrtab = (char*)(ptr + sh_strtab->sh_offset)))
+        print_error(ERROR_ELF_CLASS);
+
+    for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
+    {
+        if (shdr[i].sh_size) {
+            if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
+                symtab = (Elf32_Shdr*) &shdr[i];
+            else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
+                strtab = (Elf32_Shdr*) &shdr[i];
+        }
+    }
+
+    if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf32_Sym*) (ptr + symtab->sh_offset)))
+        print_error(ERROR_ELF_CLASS);
+    
+    char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
+
+    int len_array = 0, i = 0, j = 0;
+
+    for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++)
+    {
+        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+            len_array++;
+    }
+    Elf32_Sym array[len_array+1];
+    ft_bzero(&array, sizeof(Elf32_Sym)*(len_array+1));
+
+    for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++) { // loop over symtab to get symbol name
+        //? -u option ?
+        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
+        //? ?
+
+        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+            array[j++] = sym[i];
+    }
+
+    ft_sort_sym_array_32(array, len_array, str);
+
+    for (i = 0; i < len_array; i++)
+        print_symbol_32(array[i], shdr, str);
 }

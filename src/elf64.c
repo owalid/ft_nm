@@ -3,54 +3,6 @@
 
 
 
-void    process_64(char *ptr, Elf64_Ehdr *ehdr)
-{
-    Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
-    Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
-    Elf64_Sym *sym; // symbols
-    char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
-
-    for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
-    {
-        if (shdr[i].sh_size) {
-            if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
-                symtab = (Elf64_Shdr*) &shdr[i];
-            else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
-                strtab = (Elf64_Shdr*) &shdr[i];
-        }
-    }
-
-    if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf64_Sym*) (ptr + symtab->sh_offset)))
-        print_error(ERROR_ELF_CLASS);
-    
-    char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
-
-    int len_array = 0, i = 0, j = 0;
-
-    for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++)
-    {
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
-            len_array++;
-    }
-    Elf64_Sym array[len_array+1];
-    ft_bzero(&array, sizeof(Elf64_Sym)*(len_array+1));
-
-    for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) { // loop over symtab to get symbol name
-        //? -u option ?
-        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
-        //? ?
-
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
-            array[j++] = sym[i];
-    }
-
-    ft_sort_sym_array_64(array, len_array, str);
-
-    for (i = 0; i < len_array; i++)
-        print_symbol_64(array[i], shdr, str);
-}
-
-
 
 // TODO REDO THIS FUNCTION
 void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
@@ -211,4 +163,52 @@ void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str)
             k = 0;
             l = 0;
 	}
+}
+
+
+void    process_64(char *ptr, Elf64_Ehdr *ehdr)
+{
+    Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
+    Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
+    Elf64_Sym *sym; // symbols
+    char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
+
+    for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
+    {
+        if (shdr[i].sh_size) {
+            if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
+                symtab = (Elf64_Shdr*) &shdr[i];
+            else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
+                strtab = (Elf64_Shdr*) &shdr[i];
+        }
+    }
+
+    if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf64_Sym*) (ptr + symtab->sh_offset)))
+        print_error(ERROR_ELF_CLASS);
+    
+    char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
+
+    int len_array = 0, i = 0, j = 0;
+
+    for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++)
+    {
+        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+            len_array++;
+    }
+    Elf64_Sym array[len_array+1];
+    ft_bzero(&array, sizeof(Elf64_Sym)*(len_array+1));
+
+    for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) { // loop over symtab to get symbol name
+        //? -u option ?
+        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
+        //? ?
+
+        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+            array[j++] = sym[i];
+    }
+
+    ft_sort_sym_array_64(array, len_array, str);
+
+    for (i = 0; i < len_array; i++)
+        print_symbol_64(array[i], shdr, str);
 }
