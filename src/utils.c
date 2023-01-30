@@ -176,10 +176,13 @@ void		ft_sort_sym_array(Elf64_Sym *tab, int size, char *str)
             ft_memcpy(low_current, ft_strlowcase(low_current), len_current);
             ft_memcpy(low_next, ft_strlowcase(low_next), len_next);
 
-            while (j < len_current && !ft_isalnum(low_current[j]))
+            while(l < len_current && l < len_next && low_current[l + j] == low_next[k + l])
+                l++;
+           
+            while (j + l < len_current && !ft_isalnum(low_current[j + l]))
                 j++;
             
-            while (k < len_next && !ft_isalnum(low_next[k]))
+            while (k + l < len_next && !ft_isalnum(low_next[k + l]))
                 k++;
 
             while(l < len_current && l < len_next && low_current[l + j] == low_next[k + l])
