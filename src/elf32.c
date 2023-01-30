@@ -134,6 +134,8 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 
     if (sym.st_name)
     {
+        // printf("%d", sym.st_value);
+        // exit(0);
         if (sym.st_value)
         {
             ft_bzero(current_sym_value, 9);

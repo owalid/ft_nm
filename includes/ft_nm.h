@@ -35,8 +35,11 @@ static t_ft_nm_options options[0];
 // utils.c
 // ---
 
+void            get_formated_sym_value(unsigned int st_value, char *str, int size);
+unsigned int    swap32(unsigned int num);
+size_t          swap64(size_t val);
+
 // void		    ft_sort_sym_array(Elf64_Sym *tab, int size, char *str);
-void    get_formated_sym_value(unsigned int st_value, char *str, int size);
 // void            print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str);
 
 
