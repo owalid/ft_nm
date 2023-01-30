@@ -10,7 +10,6 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
     Elf64_Sym *sym; // symbols
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
 
-
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
         if (shdr[i].sh_size) {
@@ -22,10 +21,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
     }
 
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf64_Sym*) (ptr + symtab->sh_offset)))
-    {
-        printf("ft_nm: no symbols");
-        exit(1);
-    }
+        print_error(ERROR_ELF_CLASS);
     
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 
@@ -50,7 +46,6 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
 
     ft_sort_sym_array_64(array, len_array, str);
 
-    // printf("len_array = %d\n", len_array);
     for (i = 0; i < len_array; i++)
         print_symbol_64(array[i], shdr, str);
 }

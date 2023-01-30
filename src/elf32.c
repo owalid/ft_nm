@@ -9,13 +9,10 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
     Elf32_Sym *sym; // symbols
     char *shstrtab;
 
+    // get the section header str tab
     if (!ptr || !shdr || !(*ptr) || !sh_strtab
         || !(shstrtab = (char*)(ptr + sh_strtab->sh_offset)))
-    {
-        // get the section header str tab
-        printf("ft_nm: no symbols");
-        exit(1);
-    }
+        print_error(ERROR_ELF_CLASS);
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
@@ -28,10 +25,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
     }
 
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf32_Sym*) (ptr + symtab->sh_offset)))
-    {
-        printf("ft_nm: no symbols");
-        exit(1);
-    }
+        print_error(ERROR_ELF_CLASS);
     
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 
@@ -56,7 +50,6 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
 
     ft_sort_sym_array_32(array, len_array, str);
 
-    // printf("len_array = %d\n", len_array);
     for (i = 0; i < len_array; i++)
         print_symbol_32(array[i], shdr, str);
 }

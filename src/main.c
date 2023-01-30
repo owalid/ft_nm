@@ -29,25 +29,27 @@ int main(int argc, char* argv[]) {
     char *ptr;
 
     ft_bzero(options, sizeof(t_ft_nm_options));
+    ft_bzero(context, sizeof(t_ft_nm_ctx));
 
     parse_arg(argv, argc, options);
 
     fstat(fd, &st);
     ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-    if (ptr == MAP_FAILED) {
-        perror("mmap failed");
-        return 1;
-    }
+    
+    context->fd = fd;
+    context->st_size = st.st_size;
+    context->ptr = ptr;
+
+    if (ptr == MAP_FAILED)
+        print_error(ERROR_MMAP);
     if (ptr[EI_CLASS] == ELFCLASS32) {
         Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
         process_32(ptr, elf_header);
-        // printf("\nelf 32\n");
     } else if (ptr[EI_CLASS] == ELFCLASS64) {
         Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
         process_64(ptr, elf_header);
-        // printf("\nelf 64\n");
     } else {
-        ft_putendl("Invalid ELF class");
+        print_error(ERROR_ELF_CLASS);
     }
 
     munmap(ptr, st.st_size);

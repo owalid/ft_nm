@@ -1,6 +1,14 @@
 # include "ft_nm.h"
 # include "libft.h"
 
+void    print_error(char *message)
+{
+    ft_putendl(message);
+    munmap(context->ptr, context->st_size);
+    close(context->fd);
+    exit(1);
+}
+
 void    get_formated_sym_value(unsigned int st_value, char *str, int size)
 {
     size = (size == 64) ? 16 : 8;

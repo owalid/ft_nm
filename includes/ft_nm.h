@@ -10,6 +10,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+# define ERROR_MMAP "Error mmap failed."
+# define ERROR_ELF_CLASS "Invalid ELF class"
+
+
 typedef struct		s_ft_nm_symbols
 {
     char            *name;
@@ -28,14 +32,23 @@ typedef struct  s_ft_nm_options
 }               t_ft_nm_options;
 
 
-static t_ft_nm_options options[0];
+typedef struct  s_ft_nm_ctx
+{
+    int             fd;
+    off_t           st_size;
+    char            *ptr;
+}               t_ft_nm_ctx;
 
+
+static t_ft_nm_options  options[0];
+static t_ft_nm_ctx      context[0];
 
 // ---
 // utils.c
 // ---
 
 void            get_formated_sym_value(unsigned int st_value, char *str, int size);
+void            print_error(char *message);
 unsigned int    swap32(unsigned int num);
 size_t          swap64(size_t val);
 
