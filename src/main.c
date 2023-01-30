@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     if (ptr[EI_CLASS] == ELFCLASS32) {
         Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
         process_32(ptr, elf_header);
-        printf("\nelf 32\n");
+        // printf("\nelf 32\n");
     } else if (ptr[EI_CLASS] == ELFCLASS64) {
         Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
         process_64(ptr, elf_header);

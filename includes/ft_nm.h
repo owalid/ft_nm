@@ -35,9 +35,9 @@ static t_ft_nm_options options[0];
 // utils.c
 // ---
 
-void		    ft_sort_sym_array(Elf64_Sym *tab, int size, char *str);
-void            get_formated_sym_value(unsigned int st_value, char *str);
-void            print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str);
+// void		    ft_sort_sym_array(Elf64_Sym *tab, int size, char *str);
+void    get_formated_sym_value(unsigned int st_value, char *str, int size);
+// void            print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str);
 
 
 // ---
