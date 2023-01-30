@@ -8,6 +8,9 @@ void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
     unsigned char st_bind = ELF64_ST_BIND(sym.st_info);
     char st_type = ELF64_ST_TYPE(sym.st_info);
 
+
+    // SHT_PROGBITS == debug
+
     if (sym.st_shndx == SHN_ABS) // The symbol’s value is absolute, and will not be changed by further linking. 
         c = 'A';
     else if (sym.st_shndx == SHN_COMMON) // The symbol is common. Common symbols are uninitialized data.
@@ -21,24 +24,38 @@ void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
         if (sym.st_shndx == SHN_UNDEF)
             c = 'w';
     }
-    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
-            && shdr[sym.st_shndx].sh_flags == SHF_ALLOC) // The symbol is in a read only data section.
+
+    // ((sh_type == SHT_PROGBITS && sh_flag == (SHF_ALLOC | SHF_MERGE))
+	// 	|| (sh_type == SHT_PROGBITS && sh_flag == (SHF_ALLOC)))
+    else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC))
         c = 'R';
-    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
-        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
+    // else if ((shdr[sym.st_shndx].sh_type == SHT_PROGBITS
+    //             && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE))
+    //         || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
+    //             && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC))) // The symbol is in a read only data section.
+    //     c = 'R';
+    else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
         c = 'D';
+    else if (sym.st_shndx == SHN_COMMON)
+        c = 'C';
+    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == SHF_EXECINSTR)
+        c = 'p';
+    else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS &&
+        shdr[sym.st_shndx].sh_flags ==  (SHF_ALLOC | SHF_WRITE))
+        c = 's';
+    
     // else if () // The symbol is in an initialized data section for small objects.
     //     c = 'G';
-    else if (st_type == STT_GNU_IFUNC)
-        c = 'i';
-    else if (st_type == STT_GNU_IFUNC) // The symbol is a debugging symbol.
-    {
-        c = 'N';
-        if (st_type == STT_GNU_IFUNC) // The symbol is in the read-only data section.
-            c = 'n';
-    }
-    else if (st_type == STT_GNU_IFUNC) // The symbol is in a stack unwind section.
-        c = 'p';
+    // else if ()
+    //     c = 'i';
+    // else if () // The symbol is a debugging symbol.
+    // {
+    //     c = 'N';
+    //     if () // The symbol is in the read-only data section.
+    //         c = 'n';
+    // }
+    // else if () // The symbol is in a stack unwind section.
+    //     c = 'p';
     // else if (st_type == ) // The symbol is in an uninitialized or zero-initialized data section for small objects. 
     //     c = 's';
     // else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
@@ -56,6 +73,12 @@ void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
         c = 'U';
     else if (st_bind == STB_GNU_UNIQUE)
         c = 'u';
+    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS)
+    {
+        c = 'N';
+        if (shdr[sym.st_shndx].sh_flags == SHF_ALLOC)
+            c = 'n';
+    }
     // else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
     //     c = 'D';
     //     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
@@ -78,12 +101,11 @@ void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
     else if (sym.st_shndx == SHN_UNDEF)
         c = (st_bind == STB_WEAK) ? 'w' : 'U';
     else
-        c = 'd';
+        c = '?';
 
-    // c = ( && st_bind == STB_WEAK) ? 'w' : 'U';
     // If lowercase, the symbol is usually local
     // If uppercase, the symbol is global (external)
-    if (c != '?' && c != 'U' && c != 'I' && c != 'N' && c != 'W' && c != 'v'
+    if (c != '?' && c != 'U' && c != 'I' && c != 'N' && c != 'W' && c != 'N'
         && ft_isupper(c) == 1 && st_bind == STB_LOCAL)
     {
         c = ft_tolower(c);
