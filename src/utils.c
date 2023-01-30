@@ -8,68 +8,88 @@ void            print_type(Elf64_Sym sym, Elf64_Shdr *shdr)
     unsigned char st_bind = ELF64_ST_BIND(sym.st_info);
     char st_type = ELF64_ST_TYPE(sym.st_info);
 
-
-    // If lowercase, the symbol is usually local
-    // If uppercase, the symbol is global (external)
-
-    if (st_bind == STB_GNU_UNIQUE)
-        c = 'u';
+    if (sym.st_shndx == SHN_ABS) // The symbol’s value is absolute, and will not be changed by further linking. 
+        c = 'A';
+    else if (sym.st_shndx == SHN_COMMON) // The symbol is common. Common symbols are uninitialized data.
+        c = 'C';
+    else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
+        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the BSS data section. This section typically contains zero-initialized or uninitialized data
+        c = 'B';
     else if (st_bind == STB_WEAK) // The symbol is a weak symbol that has not been specifically tagged as a weak object symbol. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
     {
         c = 'W';
         if (sym.st_shndx == SHN_UNDEF)
             c = 'w';
     }
+    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
+            && shdr[sym.st_shndx].sh_flags == SHF_ALLOC) // The symbol is in a read only data section.
+        c = 'R';
+    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
+        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
+        c = 'D';
+    // else if () // The symbol is in an initialized data section for small objects.
+    //     c = 'G';
+    else if (st_type == STT_GNU_IFUNC)
+        c = 'i';
+    else if (st_type == STT_GNU_IFUNC) // The symbol is a debugging symbol.
+    {
+        c = 'N';
+        if (st_type == STT_GNU_IFUNC) // The symbol is in the read-only data section.
+            c = 'n';
+    }
+    else if (st_type == STT_GNU_IFUNC) // The symbol is in a stack unwind section.
+        c = 'p';
+    // else if (st_type == ) // The symbol is in an uninitialized or zero-initialized data section for small objects. 
+    //     c = 's';
+    // else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
+    //     c = 'D';
     else if (st_bind == STB_WEAK && st_type == STT_OBJECT) // The symbol is a weak object. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
     {
         c = 'V';
         if (sym.st_shndx == SHN_UNDEF)
             c = 'v';
     }
-    else if (sym.st_shndx == SHN_UNDEF) // The symbol is undefined.
-        c = 'U';
-    else if (sym.st_shndx == SHN_ABS) //  value is absolute, and will not be changed by further linking
-        c = 'A';
-    else if (sym.st_shndx == SHN_COMMON) // The symbol is common. Common symbols are uninitialized data.
-        c = 'C';
-    else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
-        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the BSS data section. This section typically contains zero-initialized or uninitialized data
-    {
-        c = 'B';
-        if (st_bind == STB_LOCAL)
-            c = 'b';
-    }
-    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
-        && shdr[sym.st_shndx].sh_flags == SHF_ALLOC)
-    {
-        c = 'R';
-        if (st_bind == STB_LOCAL)
-            c = 'r';
-    }
-    else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
-        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
-    {
-        c = 'D';
-        if (st_bind == STB_LOCAL)
-            c = 'd';
-    }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // The symbol is in the text (code) section. 
-    {
         c = 'T';
-        if (st_bind == STB_LOCAL)
-            c = 't';
-    }
-    // else if () // The symbol is in an initialized data section for small objects.
-    //     c = 'G';
-    // else if () // The symbol is a unique global symbol. This is a GNU extension to the standard set of ELF symbol bindings. 
-    //     c = 'u';
+    else if (sym.st_shndx == SHN_UNDEF)
+        c = 'U';
+    else if (st_bind == STB_GNU_UNIQUE)
+        c = 'u';
     // else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
     //     c = 'D';
+    //     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
+    //    && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE))
+
+    // else if (sym.st_shndx == SHN_UNDEF) // The symbol is undefined.
+    //     c = 'U';
+    // else if (sym.st_shndx == SHN_ABS) //  value is absolute, and will not be changed by further linking
+    //     c = 'A';
+    // else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
+    //     && shdr[sym.st_shndx].sh_flags == SHF_ALLOC)
+    //     c = 'R';
+    // else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
+    //     && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // The symbol is in the text (code) section. 
+    //     c = 'T';
+    // else if () // The symbol is a unique global symbol. This is a GNU extension to the standard set of ELF symbol bindings. 
+    //     c = 'u';
+    else if (shdr[sym.st_shndx].sh_type == SHT_DYNAMIC)
+        c = 'D';
+    else if (sym.st_shndx == SHN_UNDEF)
+        c = (st_bind == STB_WEAK) ? 'w' : 'U';
     else
         c = 'd';
 
-    printf("%c ", c);
+    // c = ( && st_bind == STB_WEAK) ? 'w' : 'U';
+    // If lowercase, the symbol is usually local
+    // If uppercase, the symbol is global (external)
+    if (c != '?' && c != 'U' && c != 'I' && c != 'N' && c != 'W' && c != 'v'
+        && ft_isupper(c) == 1 && st_bind == STB_LOCAL)
+    {
+        c = ft_tolower(c);
+    }
+
+    printf(" %c ", c);
 }
 
 
@@ -83,10 +103,17 @@ void    print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
         {
             ft_bzero(current_sym_value, 17);
             get_formated_sym_value(sym.st_value, current_sym_value); 
-            printf("%s ", current_sym_value);
+            printf("%s", current_sym_value);
         }
         else
-            printf("\t\t ");
+        {
+            char spaces[17];
+            ft_bzero(spaces, 17);
+            for (int i = 0; i < 16; i++)
+                spaces[i] = ' ';
+            // write(1, spaces, 16);
+            printf("%s", spaces);
+        }
         print_type(sym, shdr);
         printf("%s\n", str + sym.st_name);
     }
@@ -100,7 +127,7 @@ void    get_formated_sym_value(unsigned int st_value, char *str)
     int diff = 16 - len_tmp_str;
 
     ft_memset(str, '0', diff);
-    ft_memcpy(str+diff, tmp_str, len_tmp_str);
+    ft_memcpy(str+diff, ft_strlowcase(tmp_str), len_tmp_str);
     free(tmp_str);
 }
 

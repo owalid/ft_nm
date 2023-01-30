@@ -3,6 +3,8 @@
     "*.ejs": "html",
     "*.vue": "vue",
     "stdlib.h": "c",
-    "stat.h": "c"
+    "stat.h": "c",
+    "compare": "c",
+    "type_traits": "c"
   }
 }
