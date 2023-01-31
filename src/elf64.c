@@ -155,6 +155,29 @@ void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str)
 	}
 }
 
+int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len)
+{
+    short comp = 0;
+
+    if (str + sym.st_name && ft_strlen(str + sym.st_name))
+    {
+        if (options->undefined_only)
+            comp = ((sym.st_info == SHT_SYMTAB_SHNDX || ELF64_ST_BIND(sym.st_info) == STB_WEAK) && (sym.st_other == 0 && sym.st_value == 0));
+        else if (options->extern_only && sym.st_shndx < max_len)
+            comp = ((shdr[sym.st_shndx].sh_type == SHT_NOBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL ) // B
+                            ||  (ELF64_ST_BIND(sym.st_info) == STB_WEAK) // w, W
+                            || ((shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL) // R
+                            || (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL) // D
+                            || ((sym.st_shndx == SHN_UNDEF) && !(ELF64_ST_BIND(sym.st_info) == STB_GNU_UNIQUE))
+                            || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL)); // T 
+        else if (options->display_all)
+            comp = 1;
+        else
+            comp = (sym.st_info != 4);  
+    }
+    
+    return comp;
+}
 
 void    process_64(char *ptr, Elf64_Ehdr *ehdr)
 {
@@ -163,8 +186,10 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
     Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
     Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
     Elf64_Sym *sym; // symbols
+    short final_comp = 0;
 
-    for (int i = 0; i < (context->st_size - e_shoff) / sizeof(Elf64_Shdr); i++)
+    unsigned long max_len =  (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
+    for (int i = 0; i < max_len; i++)
         if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
 
     if (!have_symtab)
@@ -191,22 +216,26 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
 
     for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++)
     {
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+        if (filter_comp_sym(shdr, sym[i], str, max_len))
             len_array++;
+        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name))
     }
     Elf64_Sym array[len_array+1];
     ft_bzero(&array, sizeof(Elf64_Sym)*(len_array+1));
 
     for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) { // loop over symtab to get symbol name
+
+        
         //? -u option ?
         // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
         //? ?
-
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+        if (filter_comp_sym(shdr, sym[i], str, max_len))
             array[j++] = sym[i];
+        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && final_comp)
     }
 
-    ft_sort_sym_array_64(array, len_array, str);
+    if (!options->no_sort)
+        ft_sort_sym_array_64(array, len_array, str);
 
     for (i = 0; i < len_array; i++)
         print_symbol_64(array[i], shdr, str);
