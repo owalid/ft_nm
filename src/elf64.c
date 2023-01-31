@@ -155,7 +155,7 @@ void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str,  t_ft_nm_options
 	}
 }
 
-int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len,  t_ft_nm_options *options)
+int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len, t_ft_nm_options *options)
 {
     short comp = 0;
 
@@ -179,7 +179,7 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
     return comp;
 }
 
-void    process_64(char *ptr, Elf64_Ehdr *ehdr,  t_ft_nm_options *options)
+void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
@@ -193,7 +193,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr,  t_ft_nm_options *options)
         if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
 
     if (!have_symtab)
-        print_error(ERROR_NO_SYM);
+        print_error(ERROR_NO_SYM, context);
 
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
 
@@ -208,7 +208,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr,  t_ft_nm_options *options)
     }
 
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf64_Sym*) (ptr + symtab->sh_offset)))
-        print_error(ERROR_ELF_CLASS);
+        print_error(ERROR_ELF_CLASS, context);
     
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 

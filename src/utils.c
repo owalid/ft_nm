@@ -1,7 +1,7 @@
 # include "ft_nm.h"
 # include "libft.h"
 
-void    print_error(char *message)
+void    print_error(char *message, t_ft_nm_ctx *context)
 {
     ft_putendl(message);
     munmap(context->ptr, context->st_size);

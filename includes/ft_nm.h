@@ -41,14 +41,14 @@ typedef struct  s_ft_nm_ctx
 }               t_ft_nm_ctx;
 
 
-static t_ft_nm_ctx      context[0];
+// static t_ft_nm_ctx      context[0];
 
 // ---
 // utils.c
 // ---
 
 void            get_formated_sym_value(unsigned int st_value, char *str, int size);
-void            print_error(char *message);
+void            print_error(char *message, t_ft_nm_ctx *context);
 unsigned int    swap32(unsigned int num);
 size_t          swap64(size_t val);
 
@@ -62,12 +62,12 @@ void    debug_print_options();
 // ---
 // elf64.c
 // ---
-void            process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options);
+void            process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context);
 
 // ---
 // elf32.c
 // ---
-void            process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options);
+void            process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context);
 
 
 #endif

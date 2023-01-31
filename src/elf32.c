@@ -182,7 +182,7 @@ int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned 
     return comp;
 }
 
-void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options)
+void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
     int is_little_indian = (ptr[EI_DATA] != 1);
     unsigned int e_shoff = (is_little_indian) ? swap32(ehdr->e_shoff) : ehdr->e_shoff;
@@ -198,7 +198,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options)
         if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
 
     if (!have_symtab)
-        print_error(ERROR_NO_SYM);
+        print_error(ERROR_NO_SYM, context);
     
     if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
         exit(0);
@@ -213,9 +213,9 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options)
         }
     }
     if (!symtab || !strtab)
-        print_error(ERROR_NO_SYM);
+        print_error(ERROR_NO_SYM, context);
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf32_Sym*) (ptr + symtab->sh_offset)))
-        print_error(ERROR_ELF_CLASS);
+        print_error(ERROR_ELF_CLASS, context);
     
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 

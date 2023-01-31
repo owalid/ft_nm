@@ -24,45 +24,45 @@ int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
 
 
 int main(int argc, char* argv[]) {
-    int fd = -1;
     struct stat st;
     char *ptr;
     t_ft_nm_options  options[1];
-
-    if (argc == 1)
-        fd = open("a.out", O_RDONLY);
-    else 
-        fd = open(argv[1], O_RDONLY);
-
-
+    t_ft_nm_ctx      context[1];
+    
     ft_bzero(options, sizeof(t_ft_nm_options));
     ft_bzero(context, sizeof(t_ft_nm_ctx));
+
+    if (argc == 1)
+        context->fd = open("a.out", O_RDONLY);
+    else 
+        context->fd = open(argv[1], O_RDONLY);
+
+
 
     
     parse_arg(argv, argc, options);
 
-    fstat(fd, &st);
-    ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    fstat(context->fd, &st);
+    ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, context->fd, 0);
     
-    // printf("fd = %d", fd);
-    // context->fd = 3;
+
     context->st_size = st.st_size;
     context->ptr = ptr;
 
     if (ptr == MAP_FAILED)
-        print_error(ERROR_MMAP);
+        print_error(ERROR_MMAP, context);
     if (ptr[EI_CLASS] == ELFCLASS32) {
         Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
-        process_32(ptr, elf_header, options);
+        process_32(ptr, elf_header, options, context);
     } else if (ptr[EI_CLASS] == ELFCLASS64) {
         Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
-        process_64(ptr, elf_header, options);
+        process_64(ptr, elf_header, options, context);
     } else {
-        print_error(ERROR_ELF_CLASS);
+        print_error(ERROR_ELF_CLASS, context);
     }
 
     munmap(ptr, st.st_size);
-    close(fd);
+    close(context->fd);
     return 0;
 }
 
