@@ -192,20 +192,31 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     short have_symtab = 0;
     char *shstrtab;
     unsigned long max_len =  (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
+    size_t i = 0;
 
-
-    for (int i = 0; i < max_len; i++)
-        if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
+    for (i = 0; i < max_len; i++)
+    {
+        if (shdr[i].sh_type == SHT_SYMTAB)
+        {
+            printf("after for i = %d\n\n", i);
+            have_symtab = 1;
+        }
+    }
 
     if (!have_symtab)
+    {
+        printf("hello world");
         print_error(ERROR_NO_SYM, context);
+    }
+
     
     if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
         exit(0);
 
-    for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
+    for (i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
         if (shdr[i].sh_size) {
+            printf("in second for i = %d", i);
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf32_Shdr*) &shdr[i];
             else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
@@ -219,8 +230,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 
-    int len_array = 0, i = 0, j = 0;
-
+    int len_array = 0, j = 0;
     for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++)
     {
         if (filter_comp_sym_32(shdr, sym[i], str, max_len, options))

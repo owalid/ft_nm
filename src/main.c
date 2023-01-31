@@ -36,9 +36,6 @@ int main(int argc, char* argv[]) {
         context->fd = open("a.out", O_RDONLY);
     else 
         context->fd = open(argv[1], O_RDONLY);
-
-
-
     
     parse_arg(argv, argc, options);
 
