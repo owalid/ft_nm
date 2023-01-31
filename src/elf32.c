@@ -128,24 +128,18 @@ void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str)
             ft_memcpy(low_current, ft_strlowcase(low_current), len_current);
             ft_memcpy(low_next, ft_strlowcase(low_next), len_next);
 
-            while(l < len_current && l < len_next && low_current[l + j] == low_next[k + l])
-                l++;
-           
-            while (j + l < len_current && !ft_isalnum(low_current[j + l]))
+            while (j < len_current && !ft_isalnum(low_current[j]))
                 j++;
             
-            while (k + l < len_next && !ft_isalnum(low_next[k + l]))
+            while (k < len_next && !ft_isalnum(low_next[k]))
                 k++;
 
-            while(l < len_current && l < len_next && low_current[l + j] == low_next[k + l])
-                l++;
-
-            if (low_current[j+l] - low_next[k+l] == 0)
+            if (ft_strcmp(low_current + j, low_next + k) == 0)
                 comp = len_current < len_next;
-            else if (options->should_reverse)
-                comp = low_current[j+l] - low_next[k+l] < 0;
             else
-                comp = low_current[j+l] - low_next[k+l] > 0;
+                comp = ft_strcmp(low_current + j, low_next + k) > 0;
+
+            comp = (options->should_reverse) ? !comp : comp;
 
             if (comp)
             {
@@ -170,18 +164,13 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
     Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + e_shoff); // get the section header
     Elf32_Shdr *symtab = NULL, *strtab = NULL; // declare symbol tab and str tab
     Elf32_Sym *sym; // symbols
+    short have_symtab = 0;
     char *shstrtab;
 
-    int len = (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
-    for (int i = 0; i < len; i++)
-    {
-        if (shdr[i].sh_type == SHT_SYMTAB) {
-            symtab = (Elf32_Sym *)((char *)ptr + shdr[i].sh_offset);
-            break;
-        }
-    }
+    for (int i = 0; i < (context->st_size - e_shoff) / sizeof(Elf32_Shdr); i++)
+        if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
 
-    if (!symtab)
+    if (!have_symtab)
         print_error(ERROR_NO_SYM);
     
     if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
@@ -190,8 +179,8 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
     // printf("sh_strtab = %d", shdr->sh_size);
 
     // get the section header str tab
-    if (!ptr)
-        print_error(ERROR_ELF_CLASS);
+    // if (!ptr)
+    //     print_error(ERROR_ELF_CLASS);
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {

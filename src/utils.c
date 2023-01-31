@@ -5,7 +5,7 @@ void    print_error(char *message)
 {
     ft_putendl(message);
     munmap(context->ptr, context->st_size);
-    close(context->fd);
+    // close(context->fd);
     exit(1);
 }
 

@@ -1,9 +1,6 @@
 #include "ft_nm.h"
 #include "libft.h"
 
-
-
-
 // TODO REDO THIS FUNCTION
 void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
 {
@@ -130,25 +127,18 @@ void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str)
             ft_memcpy(low_current, ft_strlowcase(low_current), len_current);
             ft_memcpy(low_next, ft_strlowcase(low_next), len_next);
 
-            while(l < len_current && l < len_next && low_current[l + j] == low_next[k + l])
-                l++;
-           
-            while (j + l < len_current && !ft_isalnum(low_current[j + l]))
+            while (j < len_current && !ft_isalnum(low_current[j]))
                 j++;
             
-            while (k + l < len_next && !ft_isalnum(low_next[k + l]))
+            while (k < len_next && !ft_isalnum(low_next[k]))
                 k++;
 
-            while(l < len_current && l < len_next && low_current[l + j] == low_next[k + l])
-                l++;
-
-            if (low_current[j+l] - low_next[k+l] == 0)
+            if (ft_strcmp(low_current + j, low_next + k) == 0)
                 comp = len_current < len_next;
-            else if (options->should_reverse)
-                comp = low_current[j+l] - low_next[k+l] < 0;
             else
-                comp = low_current[j+l] - low_next[k+l] > 0;
+                comp = ft_strcmp(low_current + j, low_next + k) > 0;
 
+            comp = (options->should_reverse) ? !comp : comp;
             if (comp)
             {
                 tmp = tab[i];
@@ -168,9 +158,18 @@ void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str)
 
 void    process_64(char *ptr, Elf64_Ehdr *ehdr)
 {
+    short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
+    unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
     Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
     Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
     Elf64_Sym *sym; // symbols
+
+    for (int i = 0; i < (context->st_size - e_shoff) / sizeof(Elf64_Shdr); i++)
+        if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
+
+    if (!have_symtab)
+        print_error(ERROR_NO_SYM);
+
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 

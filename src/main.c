@@ -24,9 +24,15 @@ int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
 
 
 int main(int argc, char* argv[]) {
-    int fd = open(argv[1], O_RDONLY);
+    int fd = -1;
     struct stat st;
     char *ptr;
+
+    if (argc == 1)
+        fd = open("a.out", O_RDONLY);
+    else 
+        fd = open(argv[1], O_RDONLY);
+
 
     ft_bzero(options, sizeof(t_ft_nm_options));
     ft_bzero(context, sizeof(t_ft_nm_ctx));
@@ -36,7 +42,8 @@ int main(int argc, char* argv[]) {
     fstat(fd, &st);
     ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     
-    context->fd = fd;
+    // printf("fd = %d", fd);
+    // context->fd = 3;
     context->st_size = st.st_size;
     context->ptr = ptr;
 
