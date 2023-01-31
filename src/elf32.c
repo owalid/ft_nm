@@ -106,7 +106,7 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 }
 
 
-void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str)
+void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_ft_nm_options *options)
 {
 	int i = 0, j = 0, k = 0, l = 0, comp = 0;
     ssize_t len_current = 0, len_next = 0;
@@ -157,7 +157,32 @@ void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str)
 	}
 }
 
-void    process_32(char *ptr, Elf32_Ehdr *ehdr)
+
+int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned long max_len, t_ft_nm_options *options)
+{
+    short comp = 0;
+    
+    if (str + sym.st_name && ft_strlen(str + sym.st_name))
+    {
+        if (options->undefined_only)
+            comp = ((sym.st_info == SHT_SYMTAB_SHNDX || ELF32_ST_BIND(sym.st_info) == STB_WEAK) && (sym.st_other == 0 && sym.st_value == 0));
+        else if (options->extern_only && sym.st_shndx < max_len)
+            comp = ((shdr[sym.st_shndx].sh_type == SHT_NOBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL ) // B
+                            ||  (ELF32_ST_BIND(sym.st_info) == STB_WEAK) // w, W
+                            || ((shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL) // R
+                            || (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL) // D
+                            || ((sym.st_shndx == SHN_UNDEF) && !(ELF32_ST_BIND(sym.st_info) == STB_GNU_UNIQUE)) // U
+                            || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL)); // T 
+        else if (options->display_all)
+            comp = 1;
+        else
+            comp = (sym.st_info != 4);  
+    }
+    
+    return comp;
+}
+
+void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options)
 {
     int is_little_indian = (ptr[EI_DATA] != 1);
     unsigned int e_shoff = (is_little_indian) ? swap32(ehdr->e_shoff) : ehdr->e_shoff;
@@ -166,8 +191,10 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
     Elf32_Sym *sym; // symbols
     short have_symtab = 0;
     char *shstrtab;
+    unsigned long max_len =  (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
 
-    for (int i = 0; i < (context->st_size - e_shoff) / sizeof(Elf32_Shdr); i++)
+
+    for (int i = 0; i < max_len; i++)
         if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
 
     if (!have_symtab)
@@ -202,22 +229,19 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr)
 
     for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++)
     {
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+        if (filter_comp_sym_32(shdr, sym[i], str, max_len, options))
             len_array++;
     }
     Elf32_Sym array[len_array+1];
     ft_bzero(&array, sizeof(Elf32_Sym)*(len_array+1));
 
     for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++) { // loop over symtab to get symbol name
-        //? -u option ?
-        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
-        //? ?
-
-        if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info != 4)
+        if (filter_comp_sym_32(shdr, sym[i], str, max_len, options))
             array[j++] = sym[i];
     }
 
-    ft_sort_sym_array_32(array, len_array, str);
+    if (!options->no_sort)
+        ft_sort_sym_array_32(array, len_array, str, options);
 
     for (i = 0; i < len_array; i++)
         print_symbol_32(array[i], shdr, str);

@@ -105,7 +105,7 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
 }
 
 
-void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str)
+void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str,  t_ft_nm_options *options)
 {
 	int i = 0, j = 0, k = 0, l = 0, comp = 0;
     ssize_t len_current = 0, len_next = 0;
@@ -155,7 +155,7 @@ void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str)
 	}
 }
 
-int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len)
+int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len,  t_ft_nm_options *options)
 {
     short comp = 0;
 
@@ -179,7 +179,7 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
     return comp;
 }
 
-void    process_64(char *ptr, Elf64_Ehdr *ehdr)
+void    process_64(char *ptr, Elf64_Ehdr *ehdr,  t_ft_nm_options *options)
 {
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
@@ -216,7 +216,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
 
     for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++)
     {
-        if (filter_comp_sym(shdr, sym[i], str, max_len))
+        if (filter_comp_sym(shdr, sym[i], str, max_len, options))
             len_array++;
         // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name))
     }
@@ -229,13 +229,13 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr)
         //? -u option ?
         // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
         //? ?
-        if (filter_comp_sym(shdr, sym[i], str, max_len))
+        if (filter_comp_sym(shdr, sym[i], str, max_len, options))
             array[j++] = sym[i];
         // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && final_comp)
     }
 
     if (!options->no_sort)
-        ft_sort_sym_array_64(array, len_array, str);
+        ft_sort_sym_array_64(array, len_array, str, options);
 
     for (i = 0; i < len_array; i++)
         print_symbol_64(array[i], shdr, str);

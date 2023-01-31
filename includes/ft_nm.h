@@ -41,7 +41,6 @@ typedef struct  s_ft_nm_ctx
 }               t_ft_nm_ctx;
 
 
-static t_ft_nm_options  options[0];
 static t_ft_nm_ctx      context[0];
 
 // ---
@@ -53,6 +52,9 @@ void            print_error(char *message);
 unsigned int    swap32(unsigned int num);
 size_t          swap64(size_t val);
 
+// ! DEBUG NEED TO REMOVE
+void    debug_print_options();
+
 // void		    ft_sort_sym_array(Elf64_Sym *tab, int size, char *str);
 // void            print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str);
 
@@ -60,12 +62,12 @@ size_t          swap64(size_t val);
 // ---
 // elf64.c
 // ---
-void            process_64(char *ptr, Elf64_Ehdr *ehdr);
+void            process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options);
 
 // ---
 // elf32.c
 // ---
-void            process_32(char *ptr, Elf32_Ehdr *ehdr);
+void            process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options);
 
 
 #endif

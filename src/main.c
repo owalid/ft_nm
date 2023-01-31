@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     int fd = -1;
     struct stat st;
     char *ptr;
+    t_ft_nm_options  options[1];
 
     if (argc == 1)
         fd = open("a.out", O_RDONLY);
@@ -37,6 +38,7 @@ int main(int argc, char* argv[]) {
     ft_bzero(options, sizeof(t_ft_nm_options));
     ft_bzero(context, sizeof(t_ft_nm_ctx));
 
+    
     parse_arg(argv, argc, options);
 
     fstat(fd, &st);
@@ -51,10 +53,10 @@ int main(int argc, char* argv[]) {
         print_error(ERROR_MMAP);
     if (ptr[EI_CLASS] == ELFCLASS32) {
         Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
-        process_32(ptr, elf_header);
+        process_32(ptr, elf_header, options);
     } else if (ptr[EI_CLASS] == ELFCLASS64) {
         Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
-        process_64(ptr, elf_header);
+        process_64(ptr, elf_header, options);
     } else {
         print_error(ERROR_ELF_CLASS);
     }

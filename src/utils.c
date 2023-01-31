@@ -9,6 +9,16 @@ void    print_error(char *message)
     exit(1);
 }
 
+void    debug_print_options(t_ft_nm_options *options)
+{
+    printf("=== options ===");
+    printf("options->should_reverse = %d\n", options->should_reverse);
+    printf("options->undefined_only = %d\n", options->undefined_only);
+    printf("options->display_all = %d\n", options->display_all);
+    printf("options->no_sort = %d\n", options->no_sort);
+    printf("options->extern_only = %d\n\n", options->extern_only);
+}
+
 void    get_formated_sym_value(unsigned int st_value, char *str, int size)
 {
     size = (size == 64) ? 16 : 8;
