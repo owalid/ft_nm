@@ -218,20 +218,13 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr,  t_ft_nm_options *options)
     {
         if (filter_comp_sym(shdr, sym[i], str, max_len, options))
             len_array++;
-        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name))
     }
     Elf64_Sym array[len_array+1];
     ft_bzero(&array, sizeof(Elf64_Sym)*(len_array+1));
 
     for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) { // loop over symtab to get symbol name
-
-        
-        //? -u option ?
-        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && sym[i].st_info == 18 && sym[i].st_other == 0 && sym[i].st_value == 0)
-        //? ?
         if (filter_comp_sym(shdr, sym[i], str, max_len, options))
             array[j++] = sym[i];
-        // if (str + sym[i].st_name && ft_strlen(str + sym[i].st_name) && final_comp)
     }
 
     if (!options->no_sort)

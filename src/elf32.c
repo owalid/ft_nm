@@ -161,7 +161,7 @@ void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_ft_nm_options 
 int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned long max_len, t_ft_nm_options *options)
 {
     short comp = 0;
-    
+
     if (str + sym.st_name && ft_strlen(str + sym.st_name))
     {
         if (options->undefined_only)
@@ -202,12 +202,6 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options)
     
     if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
         exit(0);
-
-    // printf("sh_strtab = %d", shdr->sh_size);
-
-    // get the section header str tab
-    // if (!ptr)
-    //     print_error(ERROR_ELF_CLASS);
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
