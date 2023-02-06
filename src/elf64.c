@@ -105,54 +105,54 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
 }
 
 
-void		ft_sort_sym_array_64(Elf64_Sym *tab, int size, char *str,  t_ft_nm_options *options)
+
+void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_ft_nm_options *options)
 {
-	int i = 0, j = 0, k = 0, l = 0, comp = 0;
+    // https://en.wikipedia.org/wiki/Insertion_sort
+    ssize_t i = 0, j = 0, k = 0, l = 0, m = 0, comp = 0;
     ssize_t len_current = 0, len_next = 0;
+    char *tab_lower[size];
     Elf64_Sym tmp;
     ft_bzero(&tmp, sizeof(Elf64_Sym));
 
-	while (i + 1 < size)
+    // make copy with lower string and alnum
+    for (; i < size; i++)
+    {
+        j = 0;
+        len_current = ft_strlen((str + tab[i].st_name));
+        
+        while (j < len_current && !ft_isalnum(((str + tab[i].st_name)[j])))
+            j++;
+        
+        len_current = ft_strlen((str + tab[i].st_name + j));
+        tab_lower[i] = ft_memalloc(len_current);
+        ft_memcpy(tab_lower[i], str + tab[i].st_name + j, len_current);
+        ft_memcpy(tab_lower[i], ft_strlowcase(tab_lower[i]), len_current);
+    }
+
+    i = 1;
+	while (i < size)
 	{
-            len_current = ft_strlen((str + tab[i].st_name));
-            len_next = ft_strlen((str + tab[i + 1].st_name));
-            char low_current[len_current + 1];
-            char low_next[len_next + 1];
+        j = i;
+        
+        len_current = ft_strlen((str + tab[j].st_name));
+        len_next = ft_strlen((str + tab[j - 1].st_name));
+        
+        while (j > 0 && get_comp_sort_sym(tab_lower[j-1], tab_lower[j], len_current, len_next, options))
+        {
+            tmp = tab[j];
+            tab[j] = tab[j - 1];
+            tab[j - 1] = tmp;
 
-            ft_bzero(low_current, len_current + 1);
-            ft_bzero(low_next, len_next + 1);
-            ft_memcpy(low_current, str + tab[i].st_name, len_current);
-            ft_memcpy(low_next, str + tab[i + 1].st_name, len_next);
-
-            ft_memcpy(low_current, ft_strlowcase(low_current), len_current);
-            ft_memcpy(low_next, ft_strlowcase(low_next), len_next);
-
-            while (j < len_current && !ft_isalnum(low_current[j]))
-                j++;
-            
-            while (k < len_next && !ft_isalnum(low_next[k]))
-                k++;
-
-            if (ft_strcmp(low_current + j, low_next + k) == 0)
-                comp = len_current < len_next;
-            else
-                comp = ft_strcmp(low_current + j, low_next + k) > 0;
-
-            comp = (options->should_reverse) ? !comp : comp;
-            if (comp)
-            {
-                tmp = tab[i];
-                tab[i] = tab[i + 1];
-                tab[i + 1] = tmp;
-                i = 0;
-            }
-            else
-                i++;
-    
-            j = 0;
-            k = 0;
-            l = 0;
+            tab_lower[j] = str + tab[j].st_name;
+            tab_lower[j - 1] = str + tab[j - 1].st_name;
+            j--;
+        }
+        i++;
 	}
+
+    for (; i < size; i++)
+        free(tab_lower[i]);
 }
 
 int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len, t_ft_nm_options *options)
@@ -228,7 +228,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
     if (!options->no_sort)
-        ft_sort_sym_array_64(array, len_array, str, options);
+        ft_insert_sort_sym_array_64(array, len_array, str, options);
 
     for (i = 0; i < len_array; i++)
         print_symbol_64(array[i], shdr, str);

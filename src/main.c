@@ -5,8 +5,10 @@
 int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
 {
     int i = 0;
+    int j = 0;
     for (; i < argc; i++)
     {
+        j++;
         if (ft_strcmp(argv[i], "-r") == 0)
             options->should_reverse = 1;
         else if (ft_strcmp(argv[i], "-u") == 0)
@@ -19,9 +21,11 @@ int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
             options->extern_only = 1;
         else if (ft_strcmp(argv[i], "-h") == 0)
             options->display_help = 1;
+        else
+            j--;
     }
 
-    return i;
+    return j + 1;
 }
 
 
@@ -36,7 +40,6 @@ int main(int argc, char* argv[]) {
     ft_bzero(context, sizeof(t_ft_nm_ctx));
 
     num_options = parse_arg(argv, argc, options);
-
     if (options->display_help)
     {
         ft_putendl(HELPER);

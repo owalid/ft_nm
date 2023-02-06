@@ -32,6 +32,19 @@ void    get_formated_sym_value(unsigned int st_value, char *str, int size)
 }
 
 
+
+int    get_comp_sort_sym(char *low_current, char *low_next, ssize_t len_current, ssize_t len_next, t_ft_nm_options *options)
+{
+    short comp = 0;
+
+    if (ft_strcmp(low_current, low_next) == 0)
+        comp = len_current < len_next;
+    else
+        comp = ft_strcmp(low_current, low_next) > 0;
+
+    return (options->should_reverse) ? !comp : comp;
+}
+
 unsigned int swap32(unsigned int num) {
     return ((num>>24)&0xff) | // move byte 3 to byte 0
         ((num<<8)&0xff0000) | // move byte 1 to byte 2

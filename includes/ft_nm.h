@@ -61,6 +61,7 @@ void            get_formated_sym_value(unsigned int st_value, char *str, int siz
 void            print_error(char *message, t_ft_nm_ctx *context);
 unsigned int    swap32(unsigned int num);
 size_t          swap64(size_t val);
+int    get_comp_sort_sym(char *low_current, char *low_next, ssize_t len_current, ssize_t len_next, t_ft_nm_options *options);
 
 // ! DEBUG NEED TO REMOVE
 void    debug_print_options();

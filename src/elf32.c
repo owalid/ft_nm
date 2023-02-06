@@ -105,56 +105,97 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
     }
 }
 
-
-void		ft_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_ft_nm_options *options)
+void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_ft_nm_options *options)
 {
-	int i = 0, j = 0, k = 0, l = 0, comp = 0;
+    // https://en.wikipedia.org/wiki/Insertion_sort
+    ssize_t i = 0, j = 0, k = 0, l = 0, m = 0, comp = 0;
     ssize_t len_current = 0, len_next = 0;
+    size_t max_len = 0;
+    char *tab_lower[size];
     Elf32_Sym tmp;
     ft_bzero(&tmp, sizeof(Elf32_Sym));
 
+    for (; i < size; i++)
+    {
+        len_current = ft_strlen((str + tab[i].st_name));
+        if (max_len < len_current)
+            max_len = len_current;
+    }
+    
+    char tmp_str[max_len];
+    ft_bzero(tmp_str, max_len);
+    i = 0;
+    len_current = 0;
+    // make copy with lower string and alnum
+    for (; i < size; i++)
+    {
+        j = 0;
+        len_current = ft_strlen((str + tab[i].st_name));
+        
+        while (j < len_current && !ft_isalnum(((str + tab[i].st_name)[j])))
+            j++;
+        
+        len_current = ft_strlen((str + tab[i].st_name + j));
+        tab_lower[i] = ft_strnew(max_len);
+        ft_memcpy(tab_lower[i], str + tab[i].st_name + j, len_current);
+        ft_memcpy(tab_lower[i], ft_strlowcase(tab_lower[i]), len_current);
+    }
+    
+
+    i = 0;
 	while (i + 1 < size)
 	{
-            len_current = ft_strlen((str + tab[i].st_name));
-            len_next = ft_strlen((str + tab[i + 1].st_name));
-            char low_current[len_current + 1];
-            char low_next[len_next + 1];
+        j = i;
+        
+        len_current = ft_strlen((str + tab[i].st_name));
+        len_next = ft_strlen((str + tab[i + 1].st_name));
 
-            ft_bzero(low_current, len_current + 1);
-            ft_bzero(low_next, len_next + 1);
-            ft_memcpy(low_current, str + tab[i].st_name, len_current);
-            ft_memcpy(low_next, str + tab[i + 1].st_name, len_next);
 
-            ft_memcpy(low_current, ft_strlowcase(low_current), len_current);
-            ft_memcpy(low_next, ft_strlowcase(low_next), len_next);
+        // if (get_comp_sort_sym(tab_lower[i], tab_lower[i + 1], len_current, len_next, options))
+        // {
+        //     tmp = tab[i];
+        //     tab[i] = tab[i + 1];
+        //     tab[i + 1] = tmp;
 
-            while (j < len_current && !ft_isalnum(low_current[j]))
-                j++;
+        //     len_current = ft_strlen(tab_lower[i]);
+        //     len_next = ft_strlen(tab_lower[i+1]);
             
-            while (k < len_next && !ft_isalnum(low_next[k]))
-                k++;
+        //     ft_memcpy(tmp_str, tab_lower[i], len_current);
+        //     ft_memcpy(tab_lower[i], tab_lower[i + 1], len_next);
+        //     ft_bzero(tab_lower[i] + len_next, max_len - len_next);
 
-            if (ft_strcmp(low_current + j, low_next + k) == 0)
-                comp = len_current < len_next;
-            else
-                comp = ft_strcmp(low_current + j, low_next + k) > 0;
+        //     ft_memcpy(tab_lower[i + 1], tmp_str, len_current);
+        //     ft_bzero(tab_lower[i + 1] + len_current, max_len - len_current);
+        //     // tab_lower[i] = str + tab[i].st_name;
+        //     // tab_lower[i + 1] = str + tab[i + 1].st_name;
+        //     i = 0;
+        // }
+        // else
+        //     i++;
+        
+        while (j > 0 && get_comp_sort_sym(tab_lower[j-1], tab_lower[j], len_current, len_next, options))
+        {
+           
+            tmp = tab[j];
+            tab[j] = tab[j - 1];
+            tab[j - 1] = tmp;
 
-            comp = (options->should_reverse) ? !comp : comp;
+            len_current = ft_strlen(tab_lower[j]);
+            len_next = ft_strlen(tab_lower[j  - 1]);
+            
+            ft_memcpy(tmp_str, tab_lower[j], len_current);
+            ft_memcpy(tab_lower[j], tab_lower[j - 1], len_next);
+            ft_bzero(tab_lower[j] + len_next, max_len - len_next);
 
-            if (comp)
-            {
-                tmp = tab[i];
-                tab[i] = tab[i + 1];
-                tab[i + 1] = tmp;
-                i = 0;
-            }
-            else
-                i++;
-    
-            j = 0;
-            k = 0;
-            l = 0;
+            ft_memcpy(tab_lower[j - 1], tmp_str, len_current);
+            ft_bzero(tab_lower[j - 1] + len_current, max_len - len_current);
+            j--;
+        }
+        i++;
 	}
+
+    for (; i < size; i++)
+        free(tab_lower[i]);
 }
 
 
@@ -198,16 +239,13 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     {
         if (shdr[i].sh_type == SHT_SYMTAB)
         {
-            printf("after for i = %d\n\n", i);
             have_symtab = 1;
+            break;
         }
     }
 
     if (!have_symtab)
-    {
-        printf("hello world");
         print_error(ERROR_NO_SYM, context);
-    }
 
     
     if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
@@ -216,11 +254,12 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     for (i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
         if (shdr[i].sh_size) {
-            printf("in second for i = %d", i);
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf32_Shdr*) &shdr[i];
             else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
                 strtab = (Elf32_Shdr*) &shdr[i];
+            if (symtab && strtab)
+                break;
         }
     }
     if (!symtab || !strtab)
@@ -230,12 +269,14 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 
+
     int len_array = 0, j = 0;
     for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++)
     {
         if (filter_comp_sym_32(shdr, sym[i], str, max_len, options))
             len_array++;
     }
+
     Elf32_Sym array[len_array+1];
     ft_bzero(&array, sizeof(Elf32_Sym)*(len_array+1));
 
@@ -244,9 +285,13 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             array[j++] = sym[i];
     }
 
-    if (!options->no_sort)
-        ft_sort_sym_array_32(array, len_array, str, options);
 
+    if (!options->no_sort)
+        ft_insert_sort_sym_array_32(array, len_array, str, options);
+
+    // printf("\n\n%d\n\n", symtab->sh_size / sizeof(Elf32_Sym));
+    // exit(0);
     for (i = 0; i < len_array; i++)
         print_symbol_32(array[i], shdr, str);
+
 }
