@@ -33,14 +33,26 @@ void    get_formated_sym_value(unsigned int st_value, char *str, int size)
 
 
 
-int    get_comp_sort_sym(char *low_current, char *low_next, ssize_t len_current, ssize_t len_next, t_ft_nm_options *options)
+int    get_comp_sort_sym(char *low_before, char *low_current, ssize_t len_before, ssize_t len_current, unsigned int st_value_before, unsigned int st_value_current, t_ft_nm_options *options)
 {
     short comp = 0;
 
-    if (ft_strcmp(low_current, low_next) == 0)
-        comp = len_current < len_next;
+    if (ft_strcmp(low_before, low_current) == 0)
+    {
+        if (len_before == len_current)
+        {
+            // printf("")
+            printf("value = %d\n", st_value_before < st_value_current);
+            printf("%s = %s\n", low_before, ft_utoa_base(st_value_before, 16));
+            printf("%s = %s\n\n", low_current, ft_utoa_base(st_value_current, 16));
+            // exit(0);
+            comp = st_value_before < st_value_current;
+        }
+        else
+            comp = len_before < len_current;
+    }
     else
-        comp = ft_strcmp(low_current, low_next) > 0;
+        comp = ft_strcmp(low_before, low_current) > 0;
 
     return (options->should_reverse) ? !comp : comp;
 }

@@ -108,13 +108,13 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_ft_nm_options *options)
 {
     // https://en.wikipedia.org/wiki/Insertion_sort
-    ssize_t i = 0, j = 0, k = 0, l = 0, m = 0, comp = 0;
-    ssize_t len_current = 0, len_next = 0;
-    size_t max_len = 0;
+    ssize_t i = 0, j = 0;
+    size_t max_len = 0, len_current = 0, len_before = 0;
     char *tab_lower[size];
     Elf32_Sym tmp;
     ft_bzero(&tmp, sizeof(Elf32_Sym));
 
+    // get max size of string
     for (; i < size; i++)
     {
         len_current = ft_strlen((str + tab[i].st_name));
@@ -126,6 +126,7 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
     ft_bzero(tmp_str, max_len);
     i = 0;
     len_current = 0;
+
     // make copy with lower string and alnum
     for (; i < size; i++)
     {
@@ -139,41 +140,20 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
         tab_lower[i] = ft_strnew(max_len);
         ft_memcpy(tab_lower[i], str + tab[i].st_name + j, len_current);
         ft_memcpy(tab_lower[i], ft_strlowcase(tab_lower[i]), len_current);
+        // printf("%s\n", tab_lower[i]);
     }
+    // exit(0);
     
 
-    i = 0;
-	while (i + 1 < size)
+    i = 1;
+	while (i < size)
 	{
         j = i;
         
-        len_current = ft_strlen((str + tab[i].st_name));
-        len_next = ft_strlen((str + tab[i + 1].st_name));
-
-
-        // if (get_comp_sort_sym(tab_lower[i], tab_lower[i + 1], len_current, len_next, options))
-        // {
-        //     tmp = tab[i];
-        //     tab[i] = tab[i + 1];
-        //     tab[i + 1] = tmp;
-
-        //     len_current = ft_strlen(tab_lower[i]);
-        //     len_next = ft_strlen(tab_lower[i+1]);
-            
-        //     ft_memcpy(tmp_str, tab_lower[i], len_current);
-        //     ft_memcpy(tab_lower[i], tab_lower[i + 1], len_next);
-        //     ft_bzero(tab_lower[i] + len_next, max_len - len_next);
-
-        //     ft_memcpy(tab_lower[i + 1], tmp_str, len_current);
-        //     ft_bzero(tab_lower[i + 1] + len_current, max_len - len_current);
-        //     // tab_lower[i] = str + tab[i].st_name;
-        //     // tab_lower[i + 1] = str + tab[i + 1].st_name;
-        //     i = 0;
-        // }
-        // else
-        //     i++;
+        len_current = ft_strlen((str + tab[j].st_name));
+        len_before = ft_strlen((str + tab[j - 1].st_name));
         
-        while (j > 0 && get_comp_sort_sym(tab_lower[j-1], tab_lower[j], len_current, len_next, options))
+        while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], len_before, len_current, tab[j - 1].st_value, tab[j].st_value, options))
         {
            
             tmp = tab[j];
@@ -181,11 +161,11 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
             tab[j - 1] = tmp;
 
             len_current = ft_strlen(tab_lower[j]);
-            len_next = ft_strlen(tab_lower[j  - 1]);
+            len_before = ft_strlen(tab_lower[j  - 1]);
             
             ft_memcpy(tmp_str, tab_lower[j], len_current);
-            ft_memcpy(tab_lower[j], tab_lower[j - 1], len_next);
-            ft_bzero(tab_lower[j] + len_next, max_len - len_next);
+            ft_memcpy(tab_lower[j], tab_lower[j - 1], len_before);
+            ft_bzero(tab_lower[j] + len_before, max_len - len_before);
 
             ft_memcpy(tab_lower[j - 1], tmp_str, len_current);
             ft_bzero(tab_lower[j - 1] + len_current, max_len - len_current);
@@ -196,6 +176,7 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
 
     for (; i < size; i++)
         free(tab_lower[i]);
+    exit(0);
 }
 
 
