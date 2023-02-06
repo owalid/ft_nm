@@ -3,7 +3,7 @@
 
 
 
-void            print_type_32(Elf32_Sym sym, Elf32_Shdr *shdr)
+void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type_32)
 {
     char  c;
     unsigned char st_bind = ELF64_ST_BIND(sym.st_info);
@@ -16,6 +16,12 @@ void            print_type_32(Elf32_Sym sym, Elf32_Shdr *shdr)
         c = 'A';
     else if (sym.st_shndx == SHN_COMMON) // The symbol is common. Common symbols are uninitialized data.
         c = 'C';
+    else if (st_bind == STB_WEAK && st_type == STT_OBJECT) // The symbol is a weak object. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
+    {
+        c = 'V';
+        if (sym.st_shndx == SHN_UNDEF)
+            c = 'v';
+    }
     else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the BSS data section. This section typically contains zero-initialized or uninitialized data
         c = 'B';
@@ -37,12 +43,6 @@ void            print_type_32(Elf32_Sym sym, Elf32_Shdr *shdr)
     else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS &&
         shdr[sym.st_shndx].sh_flags ==  (SHF_ALLOC | SHF_WRITE))
         c = 's';
-    else if (st_bind == STB_WEAK && st_type == STT_OBJECT) // The symbol is a weak object. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
-    {
-        c = 'V';
-        if (sym.st_shndx == SHN_UNDEF)
-            c = 'v';
-    }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // The symbol is in the text (code) section. 
         c = 'T';
@@ -71,22 +71,26 @@ void            print_type_32(Elf32_Sym sym, Elf32_Shdr *shdr)
         c = ft_tolower(c);
     }
 
-    char final[4];
-    ft_bzero(final, 4);
-    ft_memset(final, 0, 4);
-    ft_memset(final, ' ', 3);
-    final[1] = c;
-    ft_putstr(final);
+    // char final[4];
+    ft_bzero(type_32, 4);
+    ft_memset(type_32, 0, 4);
+    ft_memset(type_32, ' ', 3);
+    type_32[1] = c;
+    // ft_putstr(type_32);
+    // return type_32;
 }
 
 
 void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 {
     char current_sym_value[9];
+    char type_32[4];
 
     if (sym.st_name)
     {
-        if (sym.st_value) // should change this condition
+        get_type_32(sym, shdr, type_32);
+
+        if (sym.st_value && type_32[1] != 'U' && type_32[1] != 'w')
         {
             ft_bzero(current_sym_value, 9);
             get_formated_sym_value(sym.st_value, current_sym_value, 32);
@@ -100,7 +104,7 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
                 spaces[i] = ' ';
             ft_putstr(spaces);
         }
-        print_type_32(sym, shdr);
+        ft_putstr(type_32);
         ft_putendl(str + sym.st_name);
     }
 }

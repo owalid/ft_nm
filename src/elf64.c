@@ -18,6 +18,12 @@ void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
     else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the BSS data section. This section typically contains zero-initialized or uninitialized data
         c = 'B';
+    else if (st_bind == STB_WEAK && st_type == STT_OBJECT) // The symbol is a weak object. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
+    {
+        c = 'V';
+        if (sym.st_shndx == SHN_UNDEF)
+            c = 'v';
+    }
     else if (st_bind == STB_WEAK) // The symbol is a weak symbol that has not been specifically tagged as a weak object symbol. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
     {
         c = 'W';
@@ -36,12 +42,6 @@ void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
     else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS &&
         shdr[sym.st_shndx].sh_flags ==  (SHF_ALLOC | SHF_WRITE))
         c = 's';
-    else if (st_bind == STB_WEAK && st_type == STT_OBJECT) // The symbol is a weak object. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
-    {
-        c = 'V';
-        if (sym.st_shndx == SHN_UNDEF)
-            c = 'v';
-    }
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // The symbol is in the text (code) section. 
         c = 'T';
