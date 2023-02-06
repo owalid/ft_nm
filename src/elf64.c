@@ -209,34 +209,25 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
 {
     if (ptr[EI_DATA] != 1 || ptr[EI_DATA] != 2)
         print_error(ERROR_BAD_ENDIAN, context);
+    
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
-
     if (e_shoff > context->st_size)
         print_error(ERROR_E_SHOFF_TO_BIG, context);
     if (e_shoff <= 0)
         print_error(ERROR_E_SHOFF_TO_LOW, context);
-    
     if (ehdr->e_shnum <= 0)
         print_error(ERROR_E_SNUM_TO_LOW, context);
-
-
+    
     Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
     Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
     Elf64_Sym *sym; // symbols
     short final_comp = 0;
-
-
     unsigned long max_len =  (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
-    // printf("context->st_size = %lu | e_shoff = %lu | context->st_size - e_shoff = %lu | max_len = %lu\n", context->st_size, e_shoff, context->st_size - e_shoff, max_len);
-    // exit(0);
+
 
     for (ssize_t i = 0; i < max_len; i++)
-    {
-        // printf("%lu\n", i);
         if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
-    }
-    // exit(0);
 
     if (!have_symtab)
         print_error(ERROR_NO_SYM, context);
@@ -267,6 +258,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
         if (filter_comp_sym(shdr, sym[i], str, max_len, options))
             len_array++;
     }
+
     Elf64_Sym array[len_array+1];
     ft_bzero(&array, sizeof(Elf64_Sym)*(len_array+1));
 

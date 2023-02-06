@@ -206,8 +206,19 @@ int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned 
 
 void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
-    int is_little_indian = (ptr[EI_DATA] != 1);
+    if (ptr[EI_DATA] != 1 || ptr[EI_DATA] != 2)
+        print_error(ERROR_BAD_ENDIAN, context);
+
+    short is_little_indian = (ptr[EI_DATA] != 1);
     unsigned int e_shoff = (is_little_indian) ? swap32(ehdr->e_shoff) : ehdr->e_shoff;
+    
+    if (e_shoff > context->st_size)
+        print_error(ERROR_E_SHOFF_TO_BIG, context);
+    if (e_shoff <= 0)
+        print_error(ERROR_E_SHOFF_TO_LOW, context);
+    if (ehdr->e_shnum <= 0)
+        print_error(ERROR_E_SNUM_TO_LOW, context);
+
     Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + e_shoff); // get the section header
     Elf32_Shdr *symtab = NULL, *strtab = NULL; // declare symbol tab and str tab
     Elf32_Sym *sym; // symbols
@@ -270,8 +281,6 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     if (!options->no_sort)
         ft_insert_sort_sym_array_32(array, len_array, str, options);
 
-    // printf("\n\n%d\n\n", symtab->sh_size / sizeof(Elf32_Sym));
-    // exit(0);
     for (i = 0; i < len_array; i++)
         print_symbol_32(array[i], shdr, str);
 
