@@ -17,27 +17,36 @@ int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
             options->no_sort = 1;
         else if (ft_strcmp(argv[i], "-g") == 0)
             options->extern_only = 1;
+        else if (ft_strcmp(argv[i], "-h") == 0)
+            options->display_help = 1;
     }
 
-    return i + 1;
+    return i;
 }
 
 
 int main(int argc, char* argv[]) {
     struct stat st;
     char *ptr;
+    int num_options = 0;
     t_ft_nm_options  options[1];
     t_ft_nm_ctx      context[1];
     
     ft_bzero(options, sizeof(t_ft_nm_options));
     ft_bzero(context, sizeof(t_ft_nm_ctx));
 
-    if (argc == 1)
+    num_options = parse_arg(argv, argc, options);
+
+    if (options->display_help)
+    {
+        ft_putendl(HELPER);
+        exit(0);
+    }
+    if (argc == 1 || num_options == argc)
         context->fd = open("a.out", O_RDONLY);
     else 
         context->fd = open(argv[1], O_RDONLY);
     
-    parse_arg(argv, argc, options);
 
     fstat(context->fd, &st);
     ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, context->fd, 0);

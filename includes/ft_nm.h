@@ -13,6 +13,15 @@
 # define ERROR_MMAP "Error mmap failed."
 # define ERROR_ELF_CLASS "Invalid ELF class"
 # define ERROR_NO_SYM "No symbol"
+# define HELPER "ft_nm [option(s)] [file(s)]\n\
+List symbols in [file(s)] (a.out by default).\n\n\
+Options:\n\
+-r\tReverse the order of the sort (whether numeric or alphabetic); let the last come first.\n\
+-u\tDisplay only undefined symbols\n\
+-a\tDisplay debugger-only symbols\n\
+-p\tDo not sort the symbols\n\
+-g\tDisplay only external symbols.\n\
+-h\tDisplay this information"
 
 
 typedef struct		s_ft_nm_symbols
@@ -30,6 +39,7 @@ typedef struct  s_ft_nm_options
     short           display_all;
     short           no_sort;
     short           extern_only;
+    short           display_help;
 }               t_ft_nm_options;
 
 
