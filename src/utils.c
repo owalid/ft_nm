@@ -42,7 +42,7 @@ int    get_comp_sort_sym(char *low_before, char *low_current, char *raw_before, 
     {
         str_raw_cmp = ft_strcmp(raw_before, raw_current);
         if (str_raw_cmp == 0)
-            comp = st_value_before > st_value_current;
+            return st_value_before > st_value_current;
         else
             comp = str_raw_cmp > 0;
     }

@@ -2,7 +2,7 @@
 #include "libft.h"
 
 // TODO REDO THIS FUNCTION
-void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
+void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
 {
     char  c;
     unsigned char st_bind = ELF64_ST_BIND(sym.st_info);
@@ -15,15 +15,15 @@ void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
         c = 'A';
     else if (sym.st_shndx == SHN_COMMON) // The symbol is common. Common symbols are uninitialized data.
         c = 'C';
-    else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
-        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the BSS data section. This section typically contains zero-initialized or uninitialized data
-        c = 'B';
     else if (st_bind == STB_WEAK && st_type == STT_OBJECT) // The symbol is a weak object. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
     {
         c = 'V';
         if (sym.st_shndx == SHN_UNDEF)
             c = 'v';
     }
+    else if (shdr[sym.st_shndx].sh_type == SHT_NOBITS
+        && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the BSS data section. This section typically contains zero-initialized or uninitialized data
+        c = 'B';
     else if (st_bind == STB_WEAK) // The symbol is a weak symbol that has not been specifically tagged as a weak object symbol. When a weak defined symbol is linked with a normal defined symbol, the normal defined symbol is used with no error.
     {
         c = 'W';
@@ -70,22 +70,24 @@ void            print_type_64(Elf64_Sym sym, Elf64_Shdr *shdr)
         c = ft_tolower(c);
     }
 
-    char final[4];
-    ft_bzero(final, 4);
-    ft_memset(final, 0, 4);
-    ft_memset(final, ' ', 3);
-    final[1] = c;
-    ft_putstr(final);
+    ft_bzero(type, 4);
+    ft_memset(type, 0, 4);
+    ft_memset(type, ' ', 3);
+    type[1] = c;
 }
 
 
 void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
 {
     char current_sym_value[17];
+    char type[4];
+
 
     if (sym.st_name)
     {
-        if (sym.st_value)
+        get_type_64(sym, shdr, type);
+
+        if (sym.st_value && type[1] != 'U' && type[1] != 'w')
         {
             ft_bzero(current_sym_value, 17);
             get_formated_sym_value(sym.st_value, current_sym_value, 64); 
@@ -99,7 +101,7 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
                 spaces[i] = ' ';
             ft_putstr(spaces);
         }
-        print_type_64(sym, shdr);
+        ft_putstr(type);
         ft_putendl(str + sym.st_name);
     }
 }
@@ -205,16 +207,36 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
 
 void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
+    if (ptr[EI_DATA] != 1 || ptr[EI_DATA] != 2)
+        print_error(ERROR_BAD_ENDIAN, context);
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
+
+    if (e_shoff > context->st_size)
+        print_error(ERROR_E_SHOFF_TO_BIG, context);
+    if (e_shoff <= 0)
+        print_error(ERROR_E_SHOFF_TO_LOW, context);
+    
+    if (ehdr->e_shnum <= 0)
+        print_error(ERROR_E_SNUM_TO_LOW, context);
+
+
     Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
     Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
     Elf64_Sym *sym; // symbols
     short final_comp = 0;
 
+
     unsigned long max_len =  (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
-    for (int i = 0; i < max_len; i++)
+    // printf("context->st_size = %lu | e_shoff = %lu | context->st_size - e_shoff = %lu | max_len = %lu\n", context->st_size, e_shoff, context->st_size - e_shoff, max_len);
+    // exit(0);
+
+    for (ssize_t i = 0; i < max_len; i++)
+    {
+        // printf("%lu\n", i);
         if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
+    }
+    // exit(0);
 
     if (!have_symtab)
         print_error(ERROR_NO_SYM, context);
@@ -223,6 +245,8 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
+        if (shdr[i].sh_name > 255)
+            print_error(ERRORS_OFFSET, context);
         if (shdr[i].sh_size) {
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf64_Shdr*) &shdr[i];

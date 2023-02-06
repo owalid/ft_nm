@@ -3,7 +3,7 @@
 
 
 
-void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type_32)
+void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type)
 {
     char  c;
     unsigned char st_bind = ELF64_ST_BIND(sym.st_info);
@@ -71,26 +71,23 @@ void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type_32)
         c = ft_tolower(c);
     }
 
-    // char final[4];
-    ft_bzero(type_32, 4);
-    ft_memset(type_32, 0, 4);
-    ft_memset(type_32, ' ', 3);
-    type_32[1] = c;
-    // ft_putstr(type_32);
-    // return type_32;
+    ft_bzero(type, 4);
+    ft_memset(type, 0, 4);
+    ft_memset(type, ' ', 3);
+    type[1] = c;
 }
 
 
 void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 {
     char current_sym_value[9];
-    char type_32[4];
+    char type[4];
 
     if (sym.st_name)
     {
-        get_type_32(sym, shdr, type_32);
+        get_type_32(sym, shdr, type);
 
-        if (sym.st_value && type_32[1] != 'U' && type_32[1] != 'w')
+        if (sym.st_value && type[1] != 'U' && type[1] != 'w')
         {
             ft_bzero(current_sym_value, 9);
             get_formated_sym_value(sym.st_value, current_sym_value, 32);
@@ -104,7 +101,7 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
                 spaces[i] = ' ';
             ft_putstr(spaces);
         }
-        ft_putstr(type_32);
+        ft_putstr(type);
         ft_putendl(str + sym.st_name);
     }
 }
