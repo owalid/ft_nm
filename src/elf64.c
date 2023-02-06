@@ -109,7 +109,7 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
 void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_ft_nm_options *options)
 {
     // https://en.wikipedia.org/wiki/Insertion_sort
-    ssize_t i = 0, j = 0;
+    ssize_t i = 0, j = 0, k = 0;
     size_t max_len = 0, len_current = 0, len_next = 0;
     char *tab_lower[size];
     Elf64_Sym tmp;
@@ -129,19 +129,21 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
     i = 0;
     len_current = 0;
 
-    // make copy with lower string and alnum
+      // make copy with lower string and alnum
     for (; i < size; i++)
     {
         j = 0;
+        k = 0;
         len_current = ft_strlen((str + tab[i].st_name));
+        tab_lower[i] = ft_strnew(max_len);
+
+        for (; k < len_current; k++)
+        {
+            if (ft_isalnum((str + tab[i].st_name)[k]))
+                tab_lower[i][j++] = (str + tab[i].st_name)[k];
+        }
         
-        while (j < len_current && !ft_isalnum(((str + tab[i].st_name)[j])))
-            j++;
-        
-        len_current = ft_strlen((str + tab[i].st_name + j));
-        tab_lower[i] = ft_memalloc(len_current);
-        ft_memcpy(tab_lower[i], str + tab[i].st_name + j, len_current);
-        ft_memcpy(tab_lower[i], ft_strlowcase(tab_lower[i]), len_current);
+        ft_memcpy(tab_lower[i], ft_strlowcase(tab_lower[i]), j);
     }
 
     i = 1;
@@ -152,8 +154,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
         len_current = ft_strlen((str + tab[j].st_name));
         len_next = ft_strlen((str + tab[j - 1].st_name));
         
-        // while (j > 0 && get_comp_sort_sym(tab_lower[j-1], tab_lower[j], len_current, len_next, options))
-        while (j > 0)
+        while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], str + tab[j - 1].st_name, str + tab[j].st_name, tab[j - 1].st_value, tab[j].st_value, options))
         {
            
             tmp = tab[j];

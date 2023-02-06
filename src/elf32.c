@@ -86,7 +86,7 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 
     if (sym.st_name)
     {
-        if (sym.st_value)
+        if (sym.st_value) // should change this condition
         {
             ft_bzero(current_sym_value, 9);
             get_formated_sym_value(sym.st_value, current_sym_value, 32);
@@ -108,7 +108,7 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_ft_nm_options *options)
 {
     // https://en.wikipedia.org/wiki/Insertion_sort
-    ssize_t i = 0, j = 0;
+    ssize_t i = 0, j = 0, k = 0;
     size_t max_len = 0, len_current = 0, len_before = 0;
     char *tab_lower[size];
     Elf32_Sym tmp;
@@ -131,18 +131,18 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
     for (; i < size; i++)
     {
         j = 0;
+        k = 0;
         len_current = ft_strlen((str + tab[i].st_name));
-        
-        while (j < len_current && !ft_isalnum(((str + tab[i].st_name)[j])))
-            j++;
-        
-        len_current = ft_strlen((str + tab[i].st_name + j));
         tab_lower[i] = ft_strnew(max_len);
-        ft_memcpy(tab_lower[i], str + tab[i].st_name + j, len_current);
-        ft_memcpy(tab_lower[i], ft_strlowcase(tab_lower[i]), len_current);
-        // printf("%s\n", tab_lower[i]);
+
+        for (; k < len_current; k++)
+        {
+            if (ft_isalnum((str + tab[i].st_name)[k]))
+                tab_lower[i][j++] = (str + tab[i].st_name)[k];
+        }
+        
+        ft_memcpy(tab_lower[i], ft_strlowcase(tab_lower[i]), j);
     }
-    // exit(0);
     
 
     i = 1;
@@ -150,10 +150,10 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
 	{
         j = i;
         
-        len_current = ft_strlen((str + tab[j].st_name));
-        len_before = ft_strlen((str + tab[j - 1].st_name));
+        len_current = ft_strlen(str + tab[j].st_name);
+        len_before = ft_strlen(str + tab[j - 1].st_name);
         
-        while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], len_before, len_current, tab[j - 1].st_value, tab[j].st_value, options))
+        while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], str + tab[j - 1].st_name, str + tab[j].st_name, tab[j - 1].st_value, tab[j].st_value, options))
         {
            
             tmp = tab[j];
@@ -161,7 +161,7 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
             tab[j - 1] = tmp;
 
             len_current = ft_strlen(tab_lower[j]);
-            len_before = ft_strlen(tab_lower[j  - 1]);
+            len_before = ft_strlen(tab_lower[j - 1]);
             
             ft_memcpy(tmp_str, tab_lower[j], len_current);
             ft_memcpy(tab_lower[j], tab_lower[j - 1], len_before);
@@ -176,7 +176,6 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
 
     for (; i < size; i++)
         free(tab_lower[i]);
-    exit(0);
 }
 
 

@@ -33,23 +33,18 @@ void    get_formated_sym_value(unsigned int st_value, char *str, int size)
 
 
 
-int    get_comp_sort_sym(char *low_before, char *low_current, ssize_t len_before, ssize_t len_current, unsigned int st_value_before, unsigned int st_value_current, t_ft_nm_options *options)
+int    get_comp_sort_sym(char *low_before, char *low_current, char *raw_before, char *raw_current, unsigned int st_value_before, unsigned int st_value_current, t_ft_nm_options *options)
 {
     short comp = 0;
+    int str_raw_cmp = 0;
 
     if (ft_strcmp(low_before, low_current) == 0)
     {
-        if (len_before == len_current)
-        {
-            // printf("")
-            printf("value = %d\n", st_value_before < st_value_current);
-            printf("%s = %s\n", low_before, ft_utoa_base(st_value_before, 16));
-            printf("%s = %s\n\n", low_current, ft_utoa_base(st_value_current, 16));
-            // exit(0);
-            comp = st_value_before < st_value_current;
-        }
+        str_raw_cmp = ft_strcmp(raw_before, raw_current);
+        if (str_raw_cmp == 0)
+            comp = st_value_before > st_value_current;
         else
-            comp = len_before < len_current;
+            comp = str_raw_cmp > 0;
     }
     else
         comp = ft_strcmp(low_before, low_current) > 0;
