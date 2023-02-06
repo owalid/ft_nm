@@ -206,7 +206,7 @@ int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned 
 
 void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
-    if (ptr[EI_DATA] != 1 || ptr[EI_DATA] != 2)
+    if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2)
         print_error(ERROR_BAD_ENDIAN, context);
 
     short is_little_indian = (ptr[EI_DATA] != 1);

@@ -87,7 +87,7 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
     {
         get_type_64(sym, shdr, type);
 
-        if (sym.st_value && type[1] != 'U' && type[1] != 'w')
+        if ((sym.st_value && type[1] != 'U' && type[1] != 'w') || type[1] == 'a')
         {
             ft_bzero(current_sym_value, 17);
             get_formated_sym_value(sym.st_value, current_sym_value, 64); 
@@ -207,7 +207,7 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
 
 void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
-    if (ptr[EI_DATA] != 1 || ptr[EI_DATA] != 2)
+    if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2)
         print_error(ERROR_BAD_ENDIAN, context);
     
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
