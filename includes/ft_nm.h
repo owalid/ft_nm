@@ -2,6 +2,7 @@
 #ifndef FTNM_H
 # define FTNM_H
 
+#include <ar.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -83,5 +84,9 @@ void            process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options
 // ---
 void            process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context);
 
+// ---
+// ar.c
+// ---
+void            process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context);
 
 #endif

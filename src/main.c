@@ -1,7 +1,6 @@
 #include "ft_nm.h"
 #include "libft.h"
 
-
 int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
 {
     int i = 0;
@@ -66,6 +65,8 @@ int main(int argc, char* argv[]) {
     } else if (ptr[EI_CLASS] == ELFCLASS64) {
         Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
         process_64(ptr, elf_header, options, context);
+    } else if (context->st_size > SARMAG && !ft_strncmp(ptr, ARMAG, SARMAG)) {
+        process_ar(ptr, options, context);
     } else {
         print_error(ERROR_ELF_CLASS, context);
     }
