@@ -39,7 +39,6 @@ void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
 
     context->st_size = st.st_size;
     context->ptr = ptr;
-
     if (ptr == MAP_FAILED)
     {
         print_error(ERROR_MMAP, context);

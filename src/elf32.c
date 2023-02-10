@@ -174,7 +174,8 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
         }
         i++;
 	}
-
+    
+    i = 0;
     for (; i < size; i++)
         free(tab_lower[i]);
 }

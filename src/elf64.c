@@ -131,6 +131,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
     i = 0;
     len_current = 0;
 
+
       // make copy with lower string and alnum
     for (; i < size; i++)
     {
@@ -177,8 +178,11 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
         i++;
 	}
 
+
+    i = 0;
     for (; i < size; i++)
         free(tab_lower[i]);
+    
 }
 
 int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len, t_ft_nm_options *options)
@@ -212,6 +216,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
         print_error(ERROR_BAD_ENDIAN, context);
         return;
     }
+
     
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
@@ -301,6 +306,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
 
     if (!options->no_sort)
         ft_insert_sort_sym_array_64(array, len_array, str, options);
+
 
     for (i = 0; i < len_array; i++)
         print_symbol_64(array[i], shdr, str);
