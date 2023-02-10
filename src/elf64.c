@@ -208,36 +208,65 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
 void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
     if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2)
+    {
         print_error(ERROR_BAD_ENDIAN, context);
+        return;
+    }
     
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
     if (e_shoff > context->st_size)
+    {
         print_error(ERROR_E_SHOFF_TO_BIG, context);
+        return;
+    }
     if (e_shoff <= 0)
+    {
         print_error(ERROR_E_SHOFF_TO_LOW, context);
+        return;
+    }
     if (ehdr->e_shnum <= 0)
+    {
         print_error(ERROR_E_SNUM_TO_LOW, context);
-    
-    Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + ehdr->e_shoff); // get the section header
+        return;
+    }
+
+    if (ehdr->e_shstrndx > context->st_size)
+    {
+        print_error(ERROR_E_SHSTR_TO_BIG, context);
+        return;
+    }
+    // printf("%ld | ", e_shoff);
+    // printf("%ld", context->st_size);
+    // exit(0);
+    Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + e_shoff); // get the section header
     Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
     Elf64_Sym *sym; // symbols
     short final_comp = 0;
-    unsigned long max_len =  (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
+    unsigned long max_len = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
 
-
+    // printf("%lu", max_len);
+    // exit(0);
+    // if (max_len)
     for (ssize_t i = 0; i < max_len; i++)
-        if (shdr[i].sh_type == SHT_SYMTAB) have_symtab = 1;
+        if (shdr[i].sh_type == SHT_SYMTAB)
+            have_symtab = 1;
 
     if (!have_symtab)
+    {
         print_error(ERROR_NO_SYM, context);
+        return;
+    }
 
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
 
     for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
-        if (shdr[i].sh_name > 255)
+        if (shdr[i].sh_name > context->st_size)
+        {
             print_error(ERRORS_OFFSET, context);
+            return;
+        }
         if (shdr[i].sh_size) {
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf64_Shdr*) &shdr[i];
@@ -247,8 +276,11 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf64_Sym*) (ptr + symtab->sh_offset)))
+    {
         print_error(ERROR_ELF_CLASS, context);
-    
+        return;
+    }
+
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 
     int len_array = 0, i = 0, j = 0;

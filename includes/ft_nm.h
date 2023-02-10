@@ -23,10 +23,11 @@ Options:\n\
 -p\tDo not sort the symbols\n\
 -g\tDisplay only external symbols.\n\
 -h\tDisplay this information"
-# define ERRORS_OFFSET "ft_nm invalid string offset is greater than 255."
+# define ERRORS_OFFSET "ft_nm invalid shname offset is greater than st_size."
 # define ERROR_E_SHOFF_TO_BIG "e_shoff to big."
 # define ERROR_E_SHOFF_TO_LOW "e_shoff <= 0."
 # define ERROR_E_SNUM_TO_LOW "e_shnum <= 0."
+# define ERROR_E_SHSTR_TO_BIG "e_shstrndx to big."
 # define ERROR_BAD_ENDIAN "Invalid endian encoding byte index."
 
 typedef struct		s_ft_nm_symbols
@@ -53,6 +54,7 @@ typedef struct  s_ft_nm_ctx
     int             fd;
     off_t           st_size;
     char            *ptr;
+    short           should_exit;
 }               t_ft_nm_ctx;
 
 

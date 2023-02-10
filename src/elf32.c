@@ -207,17 +207,36 @@ int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned 
 void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
     if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2)
+    {
         print_error(ERROR_BAD_ENDIAN, context);
+        return;
+    }
 
     short is_little_indian = (ptr[EI_DATA] != 1);
     unsigned int e_shoff = (is_little_indian) ? swap32(ehdr->e_shoff) : ehdr->e_shoff;
     
     if (e_shoff > context->st_size)
+    {
         print_error(ERROR_E_SHOFF_TO_BIG, context);
+        return;
+    }
     if (e_shoff <= 0)
+    {
         print_error(ERROR_E_SHOFF_TO_LOW, context);
+        return;
+    }
     if (ehdr->e_shnum <= 0)
+    {
         print_error(ERROR_E_SNUM_TO_LOW, context);
+        return;
+    }
+
+
+    if (ehdr->e_shstrndx > context->st_size)
+    {
+        print_error(ERROR_E_SHSTR_TO_BIG, context);
+        return;
+    }
 
     Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + e_shoff); // get the section header
     Elf32_Shdr *symtab = NULL, *strtab = NULL; // declare symbol tab and str tab
@@ -237,14 +256,27 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
     if (!have_symtab)
+    {
         print_error(ERROR_NO_SYM, context);
+        return;
+    }
 
     
     if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
-        exit(0);
+    {
+        if (context->should_exit)
+            exit(0);
+        else
+            return;
+    }
 
     for (i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
+        if (shdr[i].sh_name > context->st_size)
+        {
+            print_error(ERRORS_OFFSET, context);
+            return;
+        }
         if (shdr[i].sh_size) {
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf32_Shdr*) &shdr[i];
@@ -255,9 +287,15 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
         }
     }
     if (!symtab || !strtab)
+    {
         print_error(ERROR_NO_SYM, context);
+        return;
+    }
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf32_Sym*) (ptr + symtab->sh_offset)))
+    {
         print_error(ERROR_ELF_CLASS, context);
+        return;
+    }
     
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 

@@ -6,7 +6,8 @@ void    print_error(char *message, t_ft_nm_ctx *context)
     ft_putendl(message);
     munmap(context->ptr, context->st_size);
     // close(context->fd);
-    exit(1);
+    if (context->should_exit)
+        exit(1);
 }
 
 void    debug_print_options(t_ft_nm_options *options)

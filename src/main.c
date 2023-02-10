@@ -27,9 +27,43 @@ int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
     return j + 1;
 }
 
-
-int main(int argc, char* argv[]) {
+void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
+{
+    char *ptr;
     struct stat st;
+
+
+    fstat(context->fd, &st);
+    ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, context->fd, 0);
+    
+
+    context->st_size = st.st_size;
+    context->ptr = ptr;
+
+    if (ptr == MAP_FAILED)
+    {
+        print_error(ERROR_MMAP, context);
+        return;
+    }
+    if (ptr[EI_CLASS] == ELFCLASS32) {
+        Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
+        process_32(ptr, elf_header, options, context);
+    } else if (ptr[EI_CLASS] == ELFCLASS64) {
+        Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
+        process_64(ptr, elf_header, options, context);
+    } else if (context->st_size > SARMAG && !ft_strncmp(ptr, ARMAG, SARMAG)) {
+        process_ar(ptr, options, context);
+    } else {
+        print_error(ERROR_ELF_CLASS, context);
+    }
+
+    munmap(ptr, st.st_size);
+    close(context->fd);
+}
+
+
+int main(int argc, char* argv[])
+{
     char *ptr;
     int num_options = 0;
     t_ft_nm_options  options[1];
@@ -46,33 +80,25 @@ int main(int argc, char* argv[]) {
     }
     if (argc == 1 || num_options == argc)
         context->fd = open("a.out", O_RDONLY);
-    else 
-        context->fd = open(argv[1], O_RDONLY);
-    
-
-    fstat(context->fd, &st);
-    ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, context->fd, 0);
-    
-
-    context->st_size = st.st_size;
-    context->ptr = ptr;
-
-    if (ptr == MAP_FAILED)
-        print_error(ERROR_MMAP, context);
-    if (ptr[EI_CLASS] == ELFCLASS32) {
-        Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
-        process_32(ptr, elf_header, options, context);
-    } else if (ptr[EI_CLASS] == ELFCLASS64) {
-        Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
-        process_64(ptr, elf_header, options, context);
-    } else if (context->st_size > SARMAG && !ft_strncmp(ptr, ARMAG, SARMAG)) {
-        process_ar(ptr, options, context);
-    } else {
-        print_error(ERROR_ELF_CLASS, context);
+    else
+    {
+        short should_print_file_name = (num_options + 1 < argc);
+        context->should_exit = !should_print_file_name;
+        for (int i = num_options; i < argc; i++)
+        {
+            if (should_print_file_name)
+            {
+                ft_putchar('\n');
+                ft_putstr(argv[i]);
+                ft_putstr(":\n");
+            }
+            context->fd = open(argv[i], O_RDONLY);
+            // printf("%d\n", context->fd);
+            // exit(0);
+            process_file(options, context);
+        }
     }
-
-    munmap(ptr, st.st_size);
-    close(context->fd);
+   
     return 0;
 }
 
