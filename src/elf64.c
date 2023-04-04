@@ -241,18 +241,13 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
         print_error(ERROR_E_SHSTR_TO_BIG, context);
         return;
     }
-    // printf("%ld | ", e_shoff);
-    // printf("%ld", context->st_size);
-    // exit(0);
+
     Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + e_shoff); // get the section header
     Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
     Elf64_Sym *sym; // symbols
     short final_comp = 0;
     unsigned long max_len = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
 
-    // printf("%lu", max_len);
-    // exit(0);
-    // if (max_len)
     for (ssize_t i = 0; i < max_len; i++)
         if (shdr[i].sh_type == SHT_SYMTAB)
             have_symtab = 1;

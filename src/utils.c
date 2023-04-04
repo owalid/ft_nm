@@ -3,21 +3,15 @@
 
 void    print_error(char *message, t_ft_nm_ctx *context)
 {
-    ft_putendl(message);
+    ft_putstr_fd("ft_nm: ", 2);
+    ft_putstr_fd(context->filename, 2);
+    ft_putstr_fd(": ", 2);
+    ft_putendl_fd(message, 2);
     munmap(context->ptr, context->st_size);
-    // close(context->fd);
+    if (context->filename != NULL)
+        free(context->filename);
     if (context->should_exit)
         exit(1);
-}
-
-void    debug_print_options(t_ft_nm_options *options)
-{
-    printf("=== options ===");
-    printf("options->should_reverse = %d\n", options->should_reverse);
-    printf("options->undefined_only = %d\n", options->undefined_only);
-    printf("options->display_all = %d\n", options->display_all);
-    printf("options->no_sort = %d\n", options->no_sort);
-    printf("options->extern_only = %d\n\n", options->extern_only);
 }
 
 void    get_formated_sym_value(unsigned int st_value, char *str, int size)

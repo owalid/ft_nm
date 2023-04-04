@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 # define ERROR_MMAP "Error mmap failed."
+# define ERROR_MALLOC "Error malloc failed."
 # define ERROR_ELF_CLASS "Invalid ELF class"
 # define ERROR_NO_SYM "No symbol"
 # define HELPER "ft_nm [option(s)] [file(s)]\n\
@@ -19,7 +20,6 @@ List symbols in [file(s)] (a.out by default).\n\n\
 Options:\n\
 -r\tReverse the order of the sort (whether numeric or alphabetic); let the last come first.\n\
 -u\tDisplay only undefined symbols\n\
--a\tDisplay debugger-only symbols\n\
 -p\tDo not sort the symbols\n\
 -g\tDisplay only external symbols.\n\
 -h\tDisplay this information"
@@ -54,6 +54,7 @@ typedef struct  s_ft_nm_ctx
     int             fd;
     off_t           st_size;
     char            *ptr;
+    char            *filename;
     short           should_exit;
 }               t_ft_nm_ctx;
 
@@ -69,8 +70,6 @@ void            print_error(char *message, t_ft_nm_ctx *context);
 unsigned int    swap32(unsigned int num);
 size_t          swap64(size_t val);
 int    get_comp_sort_sym(char *low_before, char *low_current, char *raw_before, char *raw_current, unsigned int st_value_before, unsigned int st_value_current, t_ft_nm_options *options);
-// ! DEBUG NEED TO REMOVE
-void    debug_print_options();
 
 // void		    ft_sort_sym_array(Elf64_Sym *tab, int size, char *str);
 // void            print_symbol(Elf64_Sym sym, Elf64_Shdr *shdr, char *str);

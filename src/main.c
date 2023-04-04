@@ -78,7 +78,12 @@ int main(int argc, char* argv[])
         exit(0);
     }
     if (argc == 1 || num_options == argc)
-        context->fd = open("a.out", O_RDONLY);
+    {
+        if ((context->filename = ft_strdup("a.out")) == NULL)
+            print_error(ERROR_MALLOC, context);
+        context->fd = open(context->filename, O_RDONLY);
+        process_file(options, context);
+    }
     else
     {
         short should_print_file_name = (num_options + 1 < argc);
@@ -91,9 +96,10 @@ int main(int argc, char* argv[])
                 ft_putstr(argv[i]);
                 ft_putstr(":\n");
             }
-            context->fd = open(argv[i], O_RDONLY);
-            // printf("%d\n", context->fd);
-            // exit(0);
+
+            if ((context->filename = ft_strdup(argv[i])) == NULL)
+                print_error(ERROR_MALLOC, context);
+            context->fd = open(context->filename, O_RDONLY);
             process_file(options, context);
         }
     }
