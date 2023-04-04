@@ -198,7 +198,7 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
                             ||  (ELF64_ST_BIND(sym.st_info) == STB_WEAK) // w, W
                             || ((shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL) // R
                             || (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL) // D
-                            || ((sym.st_shndx == SHN_UNDEF) && !(ELF64_ST_BIND(sym.st_info) == STB_GNU_UNIQUE))
+                            || ((sym.st_shndx == SHN_UNDEF) && !(ELF64_ST_BIND(sym.st_info) == STB_GNU_UNIQUE)) // U
                             || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL)); // T 
         else if (options->display_all)
             comp = 1;
