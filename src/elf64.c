@@ -302,7 +302,6 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     if (!options->no_sort)
         ft_insert_sort_sym_array_64(array, len_array, str, options);
 
-
     for (i = 0; i < len_array; i++)
         print_symbol_64(array[i], shdr, str);
 }

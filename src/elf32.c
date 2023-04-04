@@ -316,7 +316,6 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             array[j++] = sym[i];
     }
 
-
     if (!options->no_sort)
         ft_insert_sort_sym_array_32(array, len_array, str, options);
 

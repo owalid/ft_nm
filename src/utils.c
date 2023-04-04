@@ -26,8 +26,6 @@ void    get_formated_sym_value(unsigned int st_value, char *str, int size)
     free(tmp_str);
 }
 
-
-
 int    get_comp_sort_sym(char *low_before, char *low_current, char *raw_before, char *raw_current, unsigned int st_value_before, unsigned int st_value_current, t_ft_nm_options *options)
 {
     short comp = 0;
