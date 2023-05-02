@@ -12,8 +12,6 @@ int    parse_arg(char **argv, int argc, t_ft_nm_options *options)
             options->should_reverse = 1;
         else if (ft_strcmp(argv[i], "-u") == 0)
             options->undefined_only = 1;
-        else if (ft_strcmp(argv[i], "-a") == 0)
-            options->display_all = 1;
         else if (ft_strcmp(argv[i], "-p") == 0)
             options->no_sort = 1;
         else if (ft_strcmp(argv[i], "-g") == 0)
