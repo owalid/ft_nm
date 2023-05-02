@@ -57,6 +57,9 @@ void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
     }
 
     munmap(ptr, st.st_size);
+    munmap(context->ptr, context->st_size);
+    if (context->filename != NULL)
+        free(context->filename);
     close(context->fd);
 }
 
