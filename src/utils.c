@@ -3,6 +3,7 @@
 
 void    print_error(char *message, t_ft_nm_ctx *context)
 {
+    // print error with path of file, free and exit
     ft_putstr_fd("ft_nm: ", 2);
     ft_putstr_fd(context->filename, 2);
     ft_putstr_fd(": ", 2);

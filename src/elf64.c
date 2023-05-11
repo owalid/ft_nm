@@ -79,6 +79,9 @@ void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
 
 void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
 {
+    // print symbol like:
+    // <st_value> OR <' ' * 16> <symbol> <st_name>
+
     char current_sym_value[17];
     char type[4];
 
@@ -132,7 +135,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
     len_current = 0;
 
 
-      // make copy with lower string and alnum
+    // make copy with lower string and alnum
     for (; i < size; i++)
     {
         j = 0;
@@ -157,6 +160,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
         len_current = ft_strlen((str + tab[j].st_name));
         len_next = ft_strlen((str + tab[j - 1].st_name));
         
+        // compare string value according options
         while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], str + tab[j - 1].st_name, str + tab[j].st_name, tab[j - 1].st_value, tab[j].st_value, options))
         {
            
@@ -191,18 +195,16 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
 
     if (str + sym.st_name && ft_strlen(str + sym.st_name))
     {
-        if (options->undefined_only)
+        if (options->undefined_only) // -u
             comp = ((sym.st_info == SHT_SYMTAB_SHNDX || ELF64_ST_BIND(sym.st_info) == STB_WEAK) && (sym.st_other == 0 && sym.st_value == 0));
-        else if (options->extern_only && sym.st_shndx < max_len)
+        else if (options->extern_only && sym.st_shndx < max_len) // -g
             comp = ((shdr[sym.st_shndx].sh_type == SHT_NOBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL ) // B
                             ||  (ELF64_ST_BIND(sym.st_info) == STB_WEAK) // w, W
                             || ((shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL) // R
                             || (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL) // D
                             || ((sym.st_shndx == SHN_UNDEF) && !(ELF64_ST_BIND(sym.st_info) == STB_GNU_UNIQUE)) // U
-                            || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL)); // T 
-        else if (options->display_all)
-            comp = 1;
-        else
+                            || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL)); // T
+        else // no options
             comp = (sym.st_info != 4);  
     }
     
@@ -211,7 +213,7 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
 
 void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
-    if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2)
+    if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2) // if endian is not valid, (valid values: 1 or 2)
     {
         print_error(ERROR_BAD_ENDIAN, context);
         return;
@@ -220,37 +222,40 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
-    if (e_shoff > context->st_size)
+    if (e_shoff > context->st_size) // if e_shoff is to big
     {
         print_error(ERROR_E_SHOFF_TO_BIG, context);
         return;
     }
-    if (e_shoff <= 0)
+    if (e_shoff <= 0) // if e_shoff is to low
     {
         print_error(ERROR_E_SHOFF_TO_LOW, context);
         return;
     }
-    if (ehdr->e_shnum <= 0)
+    if (ehdr->e_shnum <= 0) // if e_shnum is to low
     {
         print_error(ERROR_E_SNUM_TO_LOW, context);
         return;
     }
 
-    if (ehdr->e_shstrndx > context->st_size)
+    if (ehdr->e_shstrndx > context->st_size) // if e_shstrndx is to big
     {
         print_error(ERROR_E_SHSTR_TO_BIG, context);
         return;
     }
 
     Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + e_shoff); // get the section header
-    Elf64_Shdr *symtab, *strtab; // declare symbol tab and str tab
-    Elf64_Sym *sym; // symbols
+    Elf64_Shdr *symtab, *strtab; // init symbol tab and str tab
+    Elf64_Sym *sym; // init symbols
     short final_comp = 0;
     unsigned long max_len = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
 
-    for (ssize_t i = 0; i < max_len; i++)
+    for (ssize_t i = 0; i < max_len; i++) // check if there are symtab in shdr
         if (shdr[i].sh_type == SHT_SYMTAB)
+        {
             have_symtab = 1;
+            break;
+        }
 
     if (!have_symtab)
     {
@@ -267,7 +272,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             print_error(ERRORS_OFFSET, context);
             return;
         }
-        if (shdr[i].sh_size) {
+        if (shdr[i].sh_size) { // get symtab and strtab
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf64_Shdr*) &shdr[i];
             else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
@@ -285,7 +290,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
 
     int len_array = 0, i = 0, j = 0;
 
-    for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++)
+    for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) // init size of final array
     {
         if (filter_comp_sym(shdr, sym[i], str, max_len, options))
             len_array++;
@@ -299,9 +304,9 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             array[j++] = sym[i];
     }
 
-    if (!options->no_sort)
+    if (!options->no_sort) // -p
         ft_insert_sort_sym_array_64(array, len_array, str, options);
 
-    for (i = 0; i < len_array; i++)
+    for (i = 0; i < len_array; i++) // print all symbols
         print_symbol_64(array[i], shdr, str);
 }

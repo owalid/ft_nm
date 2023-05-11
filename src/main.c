@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
         ft_putendl(HELPER);
         exit(0);
     }
-    if (argc == 1 || num_options == argc)
+    if (argc == 1 || num_options == argc) // get a.out if no files specified
     {
         if ((context->filename = ft_strdup("a.out")) == NULL)
             print_error(ERROR_MALLOC, context);

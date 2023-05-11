@@ -80,6 +80,9 @@ void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type)
 
 void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 {
+    // print symbol like:
+    // <st_value> OR <' ' * 8> <symbol> <st_name>
+
     char current_sym_value[9];
     char type[4];
 
@@ -187,18 +190,16 @@ int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned 
 
     if (str + sym.st_name && ft_strlen(str + sym.st_name))
     {
-        if (options->undefined_only)
+        if (options->undefined_only) // -u
             comp = ((sym.st_info == SHT_SYMTAB_SHNDX || ELF32_ST_BIND(sym.st_info) == STB_WEAK) && (sym.st_other == 0 && sym.st_value == 0));
-        else if (options->extern_only && sym.st_shndx < max_len)
+        else if (options->extern_only && sym.st_shndx < max_len) // -g
             comp = ((shdr[sym.st_shndx].sh_type == SHT_NOBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL ) // B
                             ||  (ELF32_ST_BIND(sym.st_info) == STB_WEAK) // w, W
                             || ((shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL) // R
                             || (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL) // D
                             || ((sym.st_shndx == SHN_UNDEF) && !(ELF32_ST_BIND(sym.st_info) == STB_GNU_UNIQUE)) // U
                             || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR) && ELF32_ST_BIND(sym.st_info) != STB_LOCAL)); // T 
-        else if (options->display_all)
-            comp = 1;
-        else
+        else // no options
             comp = (sym.st_info != 4);  
     }
     
@@ -207,7 +208,7 @@ int     filter_comp_sym_32(Elf32_Shdr* shdr, Elf32_Sym sym, char *str, unsigned 
 
 void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
-    if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2)
+    if (ptr[EI_DATA] != 1 && ptr[EI_DATA] != 2) // if endian is not valid, (valid values: 1 or 2)
     {
         print_error(ERROR_BAD_ENDIAN, context);
         return;
@@ -216,38 +217,38 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     short is_little_indian = (ptr[EI_DATA] != 1);
     unsigned int e_shoff = (is_little_indian) ? swap32(ehdr->e_shoff) : ehdr->e_shoff;
     
-    if (e_shoff > context->st_size)
+    if (e_shoff > context->st_size) // if e_shoff is to big
     {
         print_error(ERROR_E_SHOFF_TO_BIG, context);
         return;
     }
-    if (e_shoff <= 0)
+    if (e_shoff <= 0) // if e_shoff is to low
     {
         print_error(ERROR_E_SHOFF_TO_LOW, context);
         return;
     }
-    if (ehdr->e_shnum <= 0)
+    if (ehdr->e_shnum <= 0) // if e_shnum is to low
     {
         print_error(ERROR_E_SNUM_TO_LOW, context);
         return;
     }
 
 
-    if (ehdr->e_shstrndx > context->st_size)
+    if (ehdr->e_shstrndx > context->st_size) // if e_shstrndx is to big
     {
         print_error(ERROR_E_SHSTR_TO_BIG, context);
         return;
     }
 
     Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + e_shoff); // get the section header
-    Elf32_Shdr *symtab = NULL, *strtab = NULL; // declare symbol tab and str tab
-    Elf32_Sym *sym; // symbols
+    Elf32_Shdr *symtab = NULL, *strtab = NULL; // init symbol tab and str tab
+    Elf32_Sym *sym; // init symbols
     short have_symtab = 0;
     char *shstrtab;
     unsigned long max_len =  (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
     size_t i = 0;
 
-    for (i = 0; i < max_len; i++)
+    for (i = 0; i < max_len; i++) // check if there are symtab in shdr
     {
         if (shdr[i].sh_type == SHT_SYMTAB)
         {
@@ -278,7 +279,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             print_error(ERRORS_OFFSET, context);
             return;
         }
-        if (shdr[i].sh_size) {
+        if (shdr[i].sh_size) { // get symtab and strtab
             if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) // get symtab
                 symtab = (Elf32_Shdr*) &shdr[i];
             else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
@@ -302,7 +303,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
 
 
     int len_array = 0, j = 0;
-    for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++)
+    for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++) // init size of final array
     {
         if (filter_comp_sym_32(shdr, sym[i], str, max_len, options))
             len_array++;
@@ -316,10 +317,10 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             array[j++] = sym[i];
     }
 
-    if (!options->no_sort)
+    if (!options->no_sort) // -p
         ft_insert_sort_sym_array_32(array, len_array, str, options);
 
-    for (i = 0; i < len_array; i++)
+    for (i = 0; i < len_array; i++) // print all symbols
         print_symbol_32(array[i], shdr, str);
 
 }
