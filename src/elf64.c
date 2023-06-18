@@ -115,7 +115,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
 {
     // https://en.wikipedia.org/wiki/Insertion_sort
     ssize_t i = 0, j = 0, k = 0;
-    size_t max_len = 0, len_current = 0, len_next = 0;
+    size_t len_shdrs = 0, len_current = 0, len_next = 0;
     char *tab_lower[size];
     Elf64_Sym tmp;
 
@@ -125,12 +125,12 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
     for (; i < size; i++)
     {
         len_current = ft_strlen((str + tab[i].st_name));
-        if (max_len < len_current)
-            max_len = len_current;
+        if (len_shdrs < len_current)
+            len_shdrs = len_current;
     }
     
-    char tmp_str[max_len];
-    ft_bzero(tmp_str, max_len);
+    char tmp_str[len_shdrs];
+    ft_bzero(tmp_str, len_shdrs);
     i = 0;
     len_current = 0;
 
@@ -141,7 +141,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
         j = 0;
         k = 0;
         len_current = ft_strlen((str + tab[i].st_name));
-        tab_lower[i] = ft_strnew(max_len);
+        tab_lower[i] = ft_strnew(len_shdrs);
 
         for (; k < len_current; k++)
         {
@@ -173,10 +173,10 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
             
             ft_memcpy(tmp_str, tab_lower[j], len_current);
             ft_memcpy(tab_lower[j], tab_lower[j - 1], len_next);
-            ft_bzero(tab_lower[j] + len_next, max_len - len_next);
+            ft_bzero(tab_lower[j] + len_next, len_shdrs - len_next);
 
             ft_memcpy(tab_lower[j - 1], tmp_str, len_current);
-            ft_bzero(tab_lower[j - 1] + len_current, max_len - len_current);
+            ft_bzero(tab_lower[j - 1] + len_current, len_shdrs - len_current);
             j--;
         }
         i++;
@@ -189,7 +189,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
     
 }
 
-int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long max_len, t_ft_nm_options *options)
+int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned long len_shdrs, t_ft_nm_options *options)
 {
     short comp = 0;
 
@@ -197,7 +197,7 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
     {
         if (options->undefined_only) // -u
             comp = ((sym.st_info == SHT_SYMTAB_SHNDX || ELF64_ST_BIND(sym.st_info) == STB_WEAK) && (sym.st_other == 0 && sym.st_value == 0));
-        else if (options->extern_only && sym.st_shndx < max_len) // -g
+        else if (options->extern_only && sym.st_shndx < len_shdrs)
             comp = ((shdr[sym.st_shndx].sh_type == SHT_NOBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL ) // B
                             ||  (ELF64_ST_BIND(sym.st_info) == STB_WEAK) // w, W
                             || ((shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL) // R
@@ -248,9 +248,10 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     Elf64_Shdr *symtab, *strtab; // init symbol tab and str tab
     Elf64_Sym *sym; // init symbols
     short final_comp = 0;
-    unsigned long max_len = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
+    unsigned long len_shdrs = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
 
-    for (ssize_t i = 0; i < max_len; i++) // check if there are symtab in shdr
+
+    for (ssize_t i = 0; i < len_shdrs; i++)
         if (shdr[i].sh_type == SHT_SYMTAB)
         {
             have_symtab = 1;
@@ -265,7 +266,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
 
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
 
-    for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
+    for (size_t i = 0; i < len_shdrs; i++) // loop over header 
     {
         if (shdr[i].sh_name > context->st_size)
         {
@@ -292,7 +293,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
 
     for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) // init size of final array
     {
-        if (filter_comp_sym(shdr, sym[i], str, max_len, options))
+        if (filter_comp_sym(shdr, sym[i], str, len_shdrs, options))
             len_array++;
     }
 
@@ -300,7 +301,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     ft_bzero(&array, sizeof(Elf64_Sym)*(len_array+1));
 
     for (i = 0, j = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) { // loop over symtab to get symbol name
-        if (filter_comp_sym(shdr, sym[i], str, max_len, options))
+        if (filter_comp_sym(shdr, sym[i], str, len_shdrs, options))
             array[j++] = sym[i];
     }
 
