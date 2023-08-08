@@ -13,6 +13,8 @@
 
 L'en-tête ELF commence par un magic. Ce magic de l'en-tête ELF fournit des informations sur le fichier. Les 4 premières parties hexadécimales définissent qu'il s'agit d'un fichier ELF (45=E,4c=L,46=F), préfixé par la valeur 7f.
 
+<img src="assets/header.png">
+
 ### Class
 
 32 bits ou 64 bits
@@ -56,6 +58,8 @@ Ce processus est similaire pour les bibliothèques partagées.
 
 
 ### **ELF sections**
+
+<img src="assets/section_header.png">
 
 #### **Section headers**
 
