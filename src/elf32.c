@@ -272,7 +272,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             return;
     }
 
-    for (i = 0; i < len_shdrs; i++) // loop over header 
+    for (i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
         if (shdr[i].sh_name > context->st_size)
         {
@@ -293,6 +293,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
         print_error(ERROR_NO_SYM, context);
         return;
     }
+    
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf32_Sym*) (ptr + symtab->sh_offset)))
     {
         print_error(ERROR_ELF_CLASS, context);

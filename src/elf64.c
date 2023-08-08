@@ -222,7 +222,16 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
-    if (e_shoff > context->st_size) // if e_shoff is to big
+
+    Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + e_shoff); // get the section header
+
+    // init symbol tab and str tab
+    Elf64_Shdr *symtab = NULL, *strtab = NULL;
+    Elf64_Sym *sym = NULL; // init symbols
+    short final_comp = 0;
+    unsigned long len_shdrs = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
+
+    if ((e_shoff+ehdr->e_shnum) > context->st_size) // if e_shoff is to big
     {
         print_error(ERROR_E_SHOFF_TO_BIG, context);
         return;
@@ -244,12 +253,6 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
         return;
     }
 
-    Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + e_shoff); // get the section header
-    Elf64_Shdr *symtab, *strtab; // init symbol tab and str tab
-    Elf64_Sym *sym; // init symbols
-    short final_comp = 0;
-    unsigned long len_shdrs = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
-
 
     for (ssize_t i = 0; i < len_shdrs; i++)
         if (shdr[i].sh_type == SHT_SYMTAB)
@@ -265,8 +268,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
-
-    for (size_t i = 0; i < len_shdrs; i++) // loop over header 
+    for (size_t i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
         if (shdr[i].sh_name > context->st_size)
         {
@@ -279,6 +281,12 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
             else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) // get strtab
                 strtab = (Elf64_Shdr*) &shdr[i];
         }
+    }
+
+    if (!symtab || !strtab)
+    {
+        print_error(ERROR_NO_SYM, context);
+        return;
     }
 
     if (!ptr || !symtab || !symtab->sh_offset || !(sym = (Elf64_Sym*) (ptr + symtab->sh_offset)))

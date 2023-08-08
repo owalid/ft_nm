@@ -10,7 +10,10 @@ void    print_error(char *message, t_ft_nm_ctx *context)
     ft_putendl_fd(message, 2);
     munmap(context->ptr, context->st_size);
     if (context->filename != NULL)
+    {
         free(context->filename);
+        context->filename = NULL;
+    }
     if (context->should_exit)
         exit(1);
 }
@@ -25,6 +28,7 @@ void    get_formated_sym_value(unsigned int st_value, char *str, int size)
     ft_memset(str, '0', diff);
     ft_memcpy(str+diff, ft_strlowcase(tmp_str), len_tmp_str);
     free(tmp_str);
+    tmp_str = NULL;
 }
 
 int    get_comp_sort_sym(char *low_before, char *low_current, char *raw_before, char *raw_current, unsigned int st_value_before, unsigned int st_value_current, t_ft_nm_options *options)
