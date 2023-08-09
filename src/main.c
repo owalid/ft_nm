@@ -30,8 +30,19 @@ void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
     char *ptr;
     struct stat st;
 
+    if (context->fd <= 0)
+    {
+        print_error(ERROR_OPEN, context);
+        return;
+    }
 
     fstat(context->fd, &st);
+
+    if (st.st_size <= 0)
+    {
+        print_error(ERROR_ST_SIZE, context);
+        return;
+    }
     ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, context->fd, 0);
     
 
@@ -57,7 +68,10 @@ void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
     munmap(ptr, st.st_size);
     munmap(context->ptr, context->st_size);
     if (context->filename != NULL)
+    {
         free(context->filename);
+        context->filename = NULL;
+    }
     close(context->fd);
 }
 

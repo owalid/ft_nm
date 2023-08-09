@@ -29,6 +29,10 @@ Options:\n\
 # define ERROR_E_SNUM_TO_LOW "e_shnum <= 0."
 # define ERROR_E_SHSTR_TO_BIG "e_shstrndx to big."
 # define ERROR_BAD_ENDIAN "Invalid endian encoding byte index."
+# define ERROR_OPEN "Error on open, verify if file exists and available."
+# define ERROR_ST_SIZE "Error file is empty."
+# define ERROR_AR_TRUNCATED "Error ar file is truncated."
+
 
 typedef struct		s_ft_nm_symbols
 {

@@ -47,12 +47,21 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
         ptr += sizeof(current_ar);
 
         ar_size = ft_atoi(current_ar.ar_size); // get current ar_size as number
+        if (size < ar_size + sizeof(current_ar))
+        {
+            print_error(ERROR_AR_TRUNCATED, context);
+            return;
+        }
         is_last = (size - ar_size) <= sizeof(current_ar);
         size -= ar_size + sizeof(current_ar);
         flag = (ptr[EI_CLASS] == ELFCLASS32 || ptr[EI_CLASS] == ELFCLASS64); // get if current ptr is an ELF32 or ELF64
 
         if (flag)
+        {
+            if (!current_ar.ar_name)
+                return;
             print_obj_file(current_ar.ar_name, ar_symtab);
+        }
 
         // process as elf32 or elf64
         if (ptr[EI_CLASS] == ELFCLASS32) {

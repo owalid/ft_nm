@@ -145,7 +145,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
 
         for (; k < len_current; k++)
         {
-            if (ft_isalnum((str + tab[i].st_name)[k]))
+            if (ft_isalnum((str + tab[i].st_name)[k]) || (str + tab[i].st_name)[k] == '$')
                 tab_lower[i][j++] = (str + tab[i].st_name)[k];
         }
         
