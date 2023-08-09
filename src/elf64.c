@@ -196,7 +196,7 @@ int     filter_comp_sym(Elf64_Shdr* shdr, Elf64_Sym sym, char *str, unsigned lon
     if (str + sym.st_name && ft_strlen(str + sym.st_name))
     {
         if (options->undefined_only) // -u
-            comp = ((sym.st_info == SHT_SYMTAB_SHNDX || ELF64_ST_BIND(sym.st_info) == STB_WEAK) && (sym.st_other == 0 && sym.st_value == 0));
+            comp = (((ELF64_ST_BIND(sym.st_info) == STB_WEAK) || (sym.st_shndx == SHN_UNDEF) || (ELF64_ST_BIND(sym.st_info) == STB_GNU_UNIQUE)) && (sym.st_other == 0 && sym.st_value == 0));
         else if (options->extern_only && sym.st_shndx < len_shdrs)
             comp = ((shdr[sym.st_shndx].sh_type == SHT_NOBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE) && ELF64_ST_BIND(sym.st_info) != STB_LOCAL ) // B
                             ||  (ELF64_ST_BIND(sym.st_info) == STB_WEAK) // w, W

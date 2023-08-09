@@ -18,7 +18,7 @@ void print_obj_file(char *name, char *ar_symtab)
         cpt = 0;
     }
 
-    while(name[cpt++] != '/') // loop until get /
+        while(name[cpt++] != '/') // loop until get /
         ;
     
     if (--cpt > 0)
@@ -47,33 +47,34 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
         ptr += sizeof(current_ar);
 
         ar_size = ft_atoi(current_ar.ar_size); // get current ar_size as number
-        if (size < ar_size + sizeof(current_ar))
+
+        if (size < (ar_size + sizeof(current_ar)))
         {
             print_error(ERROR_AR_TRUNCATED, context);
             return;
         }
         is_last = (size - ar_size) <= sizeof(current_ar);
         size -= ar_size + sizeof(current_ar);
-        flag = (ptr[EI_CLASS] == ELFCLASS32 || ptr[EI_CLASS] == ELFCLASS64); // get if current ptr is an ELF32 or ELF64
+        flag = (ar_size > EI_CLASS && (ptr[EI_CLASS] == ELFCLASS32 || ptr[EI_CLASS] == ELFCLASS64)); // get if current ptr is an ELF32 or ELF64
 
         if (flag)
         {
             if (!current_ar.ar_name)
                 return;
             print_obj_file(current_ar.ar_name, ar_symtab);
+        
+            // process as elf32 or elf64
+            if (ptr[EI_CLASS] == ELFCLASS32) {
+                Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
+                process_32(ptr, elf_header, options, context);
+            } else if (ptr[EI_CLASS] == ELFCLASS64) {
+                Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
+                process_64(ptr, elf_header, options, context);
+            }
+            if (!is_last && flag) // end
+                ft_putchar('\n');
         }
 
-        // process as elf32 or elf64
-        if (ptr[EI_CLASS] == ELFCLASS32) {
-            Elf32_Ehdr* elf_header = (Elf32_Ehdr*) ptr;
-            process_32(ptr, elf_header, options, context);
-        } else if (ptr[EI_CLASS] == ELFCLASS64) {
-            Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
-            process_64(ptr, elf_header, options, context);
-        }
-
-        if (!is_last && flag) // end
-            ft_putchar('\n');
         if (!ar_symtab
             && (ft_strncmp("/SYM64/         ", current_ar.ar_name, 16) == 0 // 64 bits
                 || ft_strncmp("//              ", current_ar.ar_name, 16) == 0)) // 32 bits
