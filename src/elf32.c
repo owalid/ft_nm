@@ -90,7 +90,7 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
     {
         get_type_32(sym, shdr, type);
 
-        if ((sym.st_value && type[1] != 'U' && type[1] != 'w') || type[1] == 'a' || type[1] == 'T' || type[1] == 't')
+        if ((sym.st_value && type[1] != 'U' && type[1] != 'w') || type[1] == 'a' || ft_toupper(type[1]) == 'T' || ft_toupper(type[1]) == 'D' || type[1] == 'B')
         {
             ft_bzero(current_sym_value, 9);
             get_formated_sym_value(sym.st_value, current_sym_value, 32);

@@ -35,14 +35,27 @@ int    get_comp_sort_sym(char *low_before, char *low_current, char *raw_before, 
 {
     short comp = 0;
     int str_raw_cmp = 0;
+    size_t i = 0;
 
     if (ft_strcmp(low_before, low_current) == 0)
     {
         str_raw_cmp = ft_strcmp(raw_before, raw_current);
+        i = 0;
+        while (raw_before[i] == raw_current[i] && raw_before[i] && raw_current[i])
+            i++;
         if (str_raw_cmp == 0)
-            return st_value_before > st_value_current;
-        else
-            comp = str_raw_cmp > 0;
+            comp = st_value_before > st_value_current;
+        else {
+            // printf("raw_before = %s; raw_before[i] = %c \n", raw_before, raw_before[i]);
+            // printf("raw_current = %s; raw_current[i] = %c \n", raw_current, raw_current[i]);
+            // printf("raw_before[i] == ft_toupper(raw_current[i]) = %d\n\n", raw_before[i] == ft_toupper(raw_current[i]));
+            if (raw_current[i] == '(' && raw_current[i+1] == '*')
+                comp = 0;
+            else if (raw_before[i] == ft_toupper(raw_current[i]) || ft_toupper(raw_before[i]) == raw_current[i])
+                comp = raw_before[i] == ft_toupper(raw_current[i]);
+            else
+                comp = str_raw_cmp > 0;
+        }
     }
     else
         comp = ft_strcmp(low_before, low_current) > 0;

@@ -90,7 +90,7 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
     {
         get_type_64(sym, shdr, type);
 
-        if ((sym.st_value && type[1] != 'U' && type[1] != 'w') || type[1] == 'a' || type[1] == 'T' || type[1] == 't')
+        if ((sym.st_value && type[1] != 'U' && type[1] != 'w') || type[1] == 'a' || ft_toupper(type[1]) == 'T' || ft_toupper(type[1]) == 'D' || type[1] == 'B')
         {
             ft_bzero(current_sym_value, 17);
             get_formated_sym_value(sym.st_value, current_sym_value, 64); 
@@ -159,7 +159,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
         
         len_current = ft_strlen((str + tab[j].st_name));
         len_next = ft_strlen((str + tab[j - 1].st_name));
-        
+
         // compare string value according options
         while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], str + tab[j - 1].st_name, str + tab[j].st_name, tab[j - 1].st_value, tab[j].st_value, options))
         {

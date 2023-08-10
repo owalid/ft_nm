@@ -277,3 +277,14 @@ file_name_sample     | /0           | Offset 0 in string table
 longerfilenamexample | /18          | Offset 18 in string table
 _____________________|______________|___________________________
 ```
+
+
+TODO:
+
+fix: 
+```
+./diff_simple.sh /usr/lib32/libanl.a 
+./diff_simple.sh /bin/bkcrack 
+```
+
+probably need to reorder by: sym.st_value
