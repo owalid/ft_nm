@@ -97,6 +97,7 @@ Les binaires statiques, par contre, ont toutes les bibliothèques incluses.
 - `B` (uninitialized data) : indicates that the symbol is defined in a section that contains uninitialized data.
 - `C` (common) : indicates that the symbol is uninitialized data that is not bound to any section.
 - `D` (initialized data) : indicates that the symbol is defined in a section that contains initialized data.
+- `N` (debug) : debugger symbol.
 - `R` (read only data) : indicates that the symbol is defined in a section that contains read-only data.
 - `T` (code) : indicates that the symbol is defined in a section that contains code.
 - `U` (undefined) : indicates that the symbol is not defined in the file.

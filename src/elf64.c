@@ -31,7 +31,11 @@ void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
             c = 'w';
     }
 
-    else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC))
+    else if (sym.st_shndx == SHN_UNDEF)
+        c = 'U';
+    else if (st_bind == STB_GNU_UNIQUE)
+        c = 'u';
+    else if ((shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE)) || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)))
         c = 'R';
     else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
         c = 'D';
@@ -45,10 +49,6 @@ void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS
         && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // The symbol is in the text (code) section. 
         c = 'T';
-    else if (sym.st_shndx == SHN_UNDEF)
-        c = 'U';
-    else if (st_bind == STB_GNU_UNIQUE)
-        c = 'u';
     else if (shdr[sym.st_shndx].sh_type == SHT_PROGBITS)
     {
         c = 'N';

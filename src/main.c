@@ -60,6 +60,7 @@ void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
         Elf64_Ehdr* elf_header = (Elf64_Ehdr*) ptr;
         process_64(ptr, elf_header, options, context);
     } else if (context->st_size > SARMAG && !ft_strncmp(ptr, ARMAG, SARMAG)) {
+        context->current_ar = 1;
         process_ar(ptr, options, context);
     } else {
         print_error(ERROR_ELF_CLASS, context);

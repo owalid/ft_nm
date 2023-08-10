@@ -1,7 +1,7 @@
 #include "ft_nm.h"
 #include "libft.h"
 
-void print_obj_file(char *name, char *ar_symtab)
+void print_obj_file(char *name, char *ar_symtab, t_ft_nm_ctx *context)
 {
     /*
         The ar_name field contains the name directly, and is terminated by a slash (/)
@@ -23,6 +23,17 @@ void print_obj_file(char *name, char *ar_symtab)
     
     if (--cpt > 0)
     {
+        if (context->filename != NULL)
+        {
+            free(context->filename);
+            context->filename = NULL;
+        }
+        
+        if ((context->filename = ft_strndup(name, cpt)) == NULL)
+        {
+            print_error(ERROR_MALLOC, context);
+            return;
+        }
         write(1, name, cpt);
         ft_putstr(":\n");
     }
@@ -35,6 +46,7 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
     struct ar_hdr current_ar;
     off_t size = context->st_size;
     char *ar_symtab = NULL;
+    short saved_should_exit = context->should_exit;
 
     ft_memcpy(&current_ar, ptr + SARMAG, sizeof(current_ar));
     ptr += SARMAG; // pass magic string
@@ -56,12 +68,14 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
         is_last = (size - ar_size) <= sizeof(current_ar);
         size -= ar_size + sizeof(current_ar);
         flag = (ar_size > EI_CLASS && (ptr[EI_CLASS] == ELFCLASS32 || ptr[EI_CLASS] == ELFCLASS64)); // get if current ptr is an ELF32 or ELF64
-
+        short need_exit = is_last && saved_should_exit;
+        ft_memcpy(&context->should_exit, &need_exit, sizeof(short));
+        // context->should_exit = is_last && saved_should_exit;
         if (flag)
         {
             if (!current_ar.ar_name)
                 return;
-            print_obj_file(current_ar.ar_name, ar_symtab);
+            print_obj_file(current_ar.ar_name, ar_symtab, context);
         
             // process as elf32 or elf64
             if (ptr[EI_CLASS] == ELFCLASS32) {
@@ -82,4 +96,5 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 
         ptr += ar_size; // update ptr
     }
+    // context->should_exit = saved_should_exit;
 }

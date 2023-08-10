@@ -14,7 +14,7 @@
 # define ERROR_MMAP "Error mmap failed."
 # define ERROR_MALLOC "Error malloc failed."
 # define ERROR_ELF_CLASS "Invalid ELF class"
-# define ERROR_NO_SYM "No symbol"
+# define ERROR_NO_SYM "no symbols"
 # define HELPER "ft_nm [option(s)] [file(s)]\n\
 List symbols in [file(s)] (a.out by default).\n\n\
 Options:\n\
@@ -60,6 +60,7 @@ typedef struct  s_ft_nm_ctx
     char            *ptr;
     char            *filename;
     short           should_exit;
+    short           current_ar;
 }               t_ft_nm_ctx;
 
 

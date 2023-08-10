@@ -8,14 +8,17 @@ void    print_error(char *message, t_ft_nm_ctx *context)
     ft_putstr_fd(context->filename, 2);
     ft_putstr_fd(": ", 2);
     ft_putendl_fd(message, 2);
-    munmap(context->ptr, context->st_size);
-    if (context->filename != NULL)
+    if (!context->current_ar)
     {
-        free(context->filename);
-        context->filename = NULL;
+        munmap(context->ptr, context->st_size);
+        if (context->filename != NULL)
+        {
+            free(context->filename);
+            context->filename = NULL;
+        }
+        if (context->should_exit)
+            exit(1);
     }
-    if (context->should_exit)
-        exit(1);
 }
 
 void    get_formated_sym_value(unsigned int st_value, char *str, int size)
