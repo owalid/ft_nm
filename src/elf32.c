@@ -275,7 +275,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
 
 
-    int len_array = 0, j = 0;
+    size_t len_array = 0, j = 0;
     for (i = 0; i < symtab->sh_size / sizeof(Elf32_Sym); i++) // init size of final array
     {
         if (filter_comp_sym_32(shdr, sym[i], str, len_shdrs, options))

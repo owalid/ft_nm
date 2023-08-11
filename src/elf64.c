@@ -287,8 +287,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
     char* str = (char*) (ptr + strtab->sh_offset); // get str in strtab
-
-    int len_array = 0, i = 0, j = 0;
+    size_t len_array = 0, i = 0, j = 0;
 
     for (i = 0; i < symtab->sh_size / sizeof(Elf64_Sym); i++) // init size of final array
     {
