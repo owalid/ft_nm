@@ -4,21 +4,23 @@
 void    print_error(char *message, t_ft_nm_ctx *context)
 {
     // print error with path of file, free and exit
+    short have_filename = (context->filename != NULL);
     ft_putstr_fd("ft_nm: ", 2);
-    ft_putstr_fd(context->filename, 2);
+    if (have_filename)
+        ft_putstr_fd(context->filename, 2);
+    else
+        ft_putstr_fd(MESSAGE_UNKNOW_FILENAME, 2);
     ft_putstr_fd(": ", 2);
     ft_putendl_fd(message, 2);
-    if (!context->current_ar)
-    {
+    if (!context->current_ar || context->should_exit)
         munmap(context->ptr, context->st_size);
-        if (context->filename != NULL)
-        {
-            free(context->filename);
-            context->filename = NULL;
-        }
-        if (context->should_exit)
-            exit(1);
+    if (have_filename)
+    {
+        free(context->filename);
+        context->filename = NULL;
     }
+    if (context->should_exit)
+        exit(1);
 }
 
 void    get_formated_sym_value(unsigned int st_value, char *str, int size)
@@ -49,9 +51,6 @@ int    get_comp_sort_sym(char *low_before, char *low_current, char *raw_before, 
         if (str_raw_cmp == 0)
             comp = st_value_before > st_value_current;
         else {
-            // printf("raw_before = %s; raw_before[i] = %c \n", raw_before, raw_before[i]);
-            // printf("raw_current = %s; raw_current[i] = %c \n", raw_current, raw_current[i]);
-            // printf("raw_before[i] == ft_toupper(raw_current[i]) = %d\n\n", raw_before[i] == ft_toupper(raw_current[i]));
             if (raw_current[i] == '(' && raw_current[i+1] == '*')
                 comp = 0;
             else if (raw_before[i] == ft_toupper(raw_current[i]) || ft_toupper(raw_before[i]) == raw_current[i])

@@ -32,6 +32,8 @@ Options:\n\
 # define ERROR_OPEN "Error on open, verify if file exists and available."
 # define ERROR_ST_SIZE "Error file is empty."
 # define ERROR_AR_TRUNCATED "Error ar file is truncated."
+# define ERROR_FILE_FORMAT "Error file format not recognized."
+# define MESSAGE_UNKNOW_FILENAME "Unknow filename."
 
 
 typedef struct		s_ft_nm_symbols

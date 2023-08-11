@@ -10,7 +10,6 @@ void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
 
 
     // SHT_PROGBITS == debug
-
     if (sym.st_shndx == SHN_ABS) // The symbol’s value is absolute, and will not be changed by further linking. 
         c = 'A';
     else if (sym.st_shndx == SHN_COMMON) // The symbol is common. Common symbols are uninitialized data.
@@ -30,7 +29,6 @@ void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
         if (sym.st_shndx == SHN_UNDEF)
             c = 'w';
     }
-
     else if (sym.st_shndx == SHN_UNDEF)
         c = 'U';
     else if (st_bind == STB_GNU_UNIQUE)
@@ -85,7 +83,6 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
     char current_sym_value[17];
     char type[4];
 
-
     if (sym.st_name)
     {
         get_type_64(sym, shdr, type);
@@ -133,7 +130,6 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
     ft_bzero(tmp_str, len_shdrs);
     i = 0;
     len_current = 0;
-
 
     // make copy with lower string and alnum
     for (; i < size; i++)

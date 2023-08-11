@@ -70,7 +70,7 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
         flag = (ar_size > EI_CLASS && (ptr[EI_CLASS] == ELFCLASS32 || ptr[EI_CLASS] == ELFCLASS64)); // get if current ptr is an ELF32 or ELF64
         short need_exit = is_last && saved_should_exit;
         ft_memcpy(&context->should_exit, &need_exit, sizeof(short));
-        // context->should_exit = is_last && saved_should_exit;
+        context->should_exit = is_last && saved_should_exit;
         if (flag)
         {
             if (!current_ar.ar_name)
@@ -87,6 +87,8 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
             }
             if (!is_last && flag) // end
                 ft_putchar('\n');
+        } else {
+            print_error(ERROR_FILE_FORMAT, context);
         }
 
         if (!ar_symtab
@@ -96,5 +98,5 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 
         ptr += ar_size; // update ptr
     }
-    // context->should_exit = saved_should_exit;
+    context->should_exit = saved_should_exit;
 }

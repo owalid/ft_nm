@@ -243,33 +243,33 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     Elf32_Shdr *symtab = NULL, *strtab = NULL; // init symbol tab and str tab
     Elf32_Sym *sym; // init symbols
     short have_symtab = 0;
-    char *shstrtab;
+    // char *shstrtab;
     unsigned long len_shdrs =  (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
     size_t i = 0;
 
-    for (i = 0; i < len_shdrs; i++)
-    {
-        if (shdr[i].sh_type == SHT_SYMTAB)
-        {
-            have_symtab = 1;
-            break;
-        }
-    }
+    // for (i = 0; i < len_shdrs; i++)
+    // {
+    //     if (shdr[i].sh_type == SHT_SYMTAB)
+    //     {
+    //         have_symtab = 1;
+    //         break;
+    //     }
+    // }
 
-    if (!have_symtab)
-    {
-        print_error(ERROR_NO_SYM, context);
-        return;
-    }
+    // if (!have_symtab)
+    // {
+    //     print_error(ERROR_NO_SYM, context);
+    //     return;
+    // }
+    char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
 
-    
-    if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
-    {
-        if (context->should_exit)
-            exit(0);
-        else
-            return;
-    }
+    // if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
+    // {
+    //     if (context->should_exit)
+    //         exit(0);
+    //     else
+    //         return;
+    // }
 
     for (i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
