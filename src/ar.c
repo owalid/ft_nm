@@ -51,7 +51,7 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
     ft_memcpy(&current_ar, ptr + SARMAG, sizeof(current_ar));
     ptr += SARMAG; // pass magic string
 	size -= SARMAG; // pass magic string
-
+    short i = 0;
     ft_putchar('\n');
     while (size >= sizeof(current_ar))
     {
@@ -87,9 +87,11 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
             }
             if (!is_last && flag) // end
                 ft_putchar('\n');
-        } else {
+        } else if (i > 2) { // not first elements
             print_error(ERROR_FILE_FORMAT, context);
         }
+        if (i < 3)
+            i += 1;
 
         if (!ar_symtab
             && (ft_strncmp("/SYM64/         ", current_ar.ar_name, 16) == 0 // 64 bits

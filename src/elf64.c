@@ -8,7 +8,6 @@ void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
     unsigned char st_bind = ELF64_ST_BIND(sym.st_info);
     char st_type = ELF64_ST_TYPE(sym.st_info);
 
-
     // SHT_PROGBITS == debug
     if (sym.st_shndx == SHN_ABS) // The symbol’s value is absolute, and will not be changed by further linking. 
         c = 'A';
@@ -33,7 +32,7 @@ void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
         c = 'U';
     else if (st_bind == STB_GNU_UNIQUE)
         c = 'u';
-    else if ((shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE)) || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)))
+    else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC))
         c = 'R';
     else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
         c = 'D';
@@ -106,8 +105,6 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
     }
 }
 
-
-
 void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_ft_nm_options *options)
 {
     // https://en.wikipedia.org/wiki/Insertion_sort
@@ -178,7 +175,6 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
         i++;
 	}
 
-
     i = 0;
     for (; i < size; i++)
         free(tab_lower[i]);
@@ -218,7 +214,6 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     
     short is_little_indian = (ptr[EI_DATA] != 1), have_symtab = 0;
     unsigned long e_shoff = (is_little_indian) ? swap64(ehdr->e_shoff) : ehdr->e_shoff;
-
     Elf64_Shdr* shdr = (Elf64_Shdr*) ((char*) ptr + e_shoff); // get the section header
 
     // init symbol tab and str tab

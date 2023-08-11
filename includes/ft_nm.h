@@ -33,7 +33,7 @@ Options:\n\
 # define ERROR_ST_SIZE "Error file is empty."
 # define ERROR_AR_TRUNCATED "Error ar file is truncated."
 # define ERROR_FILE_FORMAT "Error file format not recognized."
-# define MESSAGE_UNKNOW_FILENAME "Unknow filename."
+# define MESSAGE_UNKNOW_FILENAME "? unknow filename ?"
 
 
 typedef struct		s_ft_nm_symbols
@@ -65,13 +65,9 @@ typedef struct  s_ft_nm_ctx
     short           current_ar;
 }               t_ft_nm_ctx;
 
-
-// static t_ft_nm_ctx      context[0];
-
 // ---
 // utils.c
 // ---
-
 void            get_formated_sym_value(unsigned int st_value, char *str, int size);
 void            print_error(char *message, t_ft_nm_ctx *context);
 unsigned int    swap32(unsigned int num);

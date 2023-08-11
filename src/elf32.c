@@ -1,8 +1,6 @@
 #include "ft_nm.h"
 #include "libft.h"
 
-
-
 void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type)
 {
     char  c;
@@ -35,7 +33,7 @@ void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type)
         c = 'U';
     else if (st_bind == STB_GNU_UNIQUE)
         c = 'u';
-    else if ((shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE)) || (shdr[sym.st_shndx].sh_type == SHT_PROGBITS && shdr[sym.st_shndx].sh_flags == (SHF_ALLOC)))
+    else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_MERGE) || shdr[sym.st_shndx].sh_flags == (SHF_ALLOC))
         c = 'R';
     else if (shdr[sym.st_shndx].sh_flags == (SHF_ALLOC | SHF_WRITE)) // The symbol is in the initialized
         c = 'D';
@@ -75,7 +73,6 @@ void        get_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char* type)
     ft_memset(type, ' ', 3);
     type[1] = c;
 }
-
 
 void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
 {
@@ -243,33 +240,9 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     Elf32_Shdr *symtab = NULL, *strtab = NULL; // init symbol tab and str tab
     Elf32_Sym *sym; // init symbols
     short have_symtab = 0;
-    // char *shstrtab;
     unsigned long len_shdrs =  (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
     size_t i = 0;
-
-    // for (i = 0; i < len_shdrs; i++)
-    // {
-    //     if (shdr[i].sh_type == SHT_SYMTAB)
-    //     {
-    //         have_symtab = 1;
-    //         break;
-    //     }
-    // }
-
-    // if (!have_symtab)
-    // {
-    //     print_error(ERROR_NO_SYM, context);
-    //     return;
-    // }
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
-
-    // if (!(shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset))) // get the section header str tab
-    // {
-    //     if (context->should_exit)
-    //         exit(0);
-    //     else
-    //         return;
-    // }
 
     for (i = 0; i < ehdr->e_shnum; i++) // loop over header 
     {
