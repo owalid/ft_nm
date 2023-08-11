@@ -6,7 +6,7 @@
 #    By: oel-ayad <oel-ayad@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/01/30 15:43:53 by oel-ayad          #+#    #+#              #
-#    Updated: 2023/08/11 22:15:15 by oel-ayad         ###   ########.fr        #
+#    Updated: 2023/08/11 22:29:54 by oel-ayad         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,7 +48,7 @@ FLAG = -Wall -Wextra -Werror
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	gcc $(FLAG) -c $(SRCS)
+	cc $(FLAG) -c $(SRCS)
 	ar rc $(NAME) $(OBJ)
 	ranlib $(NAME)
 

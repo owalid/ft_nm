@@ -8,6 +8,7 @@ tmp*
 .tmp*
 build
 a.out
+upx
 
 # Prerequisites
 *.d
