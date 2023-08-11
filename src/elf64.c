@@ -105,11 +105,12 @@ void    print_symbol_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *str)
     }
 }
 
-void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_ft_nm_options *options)
+void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, size_t size, char *str, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
     // https://en.wikipedia.org/wiki/Insertion_sort
-    ssize_t i = 0, j = 0, k = 0;
-    size_t len_shdrs = 0, len_current = 0, len_next = 0;
+    if (!size)
+        return;
+    size_t i = 0, j = 0, k = 0, len_shdrs = 0, len_current = 0, len_next = 0;
     char *tab_lower[size];
     Elf64_Sym tmp;
 
@@ -126,7 +127,6 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
     char tmp_str[len_shdrs];
     ft_bzero(tmp_str, len_shdrs);
     i = 0;
-    len_current = 0;
 
     // make copy with lower string and alnum
     for (; i < size; i++)
@@ -134,7 +134,9 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
         j = 0;
         k = 0;
         len_current = ft_strlen((str + tab[i].st_name));
-        tab_lower[i] = ft_strnew(len_shdrs);
+
+        if ((tab_lower[i] = ft_strnew(len_shdrs)) == NULL)
+            print_error(ERROR_MALLOC, context);
 
         for (; k < len_current; k++)
         {
@@ -149,9 +151,6 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
 	while (i < size)
 	{
         j = i;
-        
-        len_current = ft_strlen((str + tab[j].st_name));
-        len_next = ft_strlen((str + tab[j - 1].st_name));
 
         // compare string value according options
         while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], str + tab[j - 1].st_name, str + tab[j].st_name, tab[j - 1].st_value, tab[j].st_value, options))
@@ -162,7 +161,7 @@ void        ft_insert_sort_sym_array_64(Elf64_Sym *tab, int size, char *str, t_f
             tab[j - 1] = tmp;
 
             len_current = ft_strlen(tab_lower[j]);
-            len_next = ft_strlen(tab_lower[j  - 1]);
+            len_next = ft_strlen(tab_lower[j - 1]);
             
             ft_memcpy(tmp_str, tab_lower[j], len_current);
             ft_memcpy(tab_lower[j], tab_lower[j - 1], len_next);
@@ -219,10 +218,9 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     // init symbol tab and str tab
     Elf64_Shdr *symtab = NULL, *strtab = NULL;
     Elf64_Sym *sym = NULL; // init symbols
-    short final_comp = 0;
     unsigned long len_shdrs = (context->st_size - e_shoff) / sizeof(Elf64_Shdr);
 
-    if ((e_shoff+ehdr->e_shnum) > context->st_size) // if e_shoff is to big
+    if ((e_shoff+ehdr->e_shnum) > (unsigned long)context->st_size) // if e_shoff is to big
     {
         print_error(ERROR_E_SHOFF_TO_BIG, context);
         return;
@@ -245,7 +243,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
 
-    for (ssize_t i = 0; i < len_shdrs; i++)
+    for (ssize_t i = 0; i < (ssize_t)len_shdrs; i++)
         if (shdr[i].sh_type == SHT_SYMTAB)
         {
             have_symtab = 1;
@@ -304,7 +302,7 @@ void    process_64(char *ptr, Elf64_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
     if (!options->no_sort) // -p
-        ft_insert_sort_sym_array_64(array, len_array, str, options);
+        ft_insert_sort_sym_array_64(array, len_array, str, options, context);
 
     for (i = 0; i < len_array; i++) // print all symbols
         print_symbol_64(array[i], shdr, str);

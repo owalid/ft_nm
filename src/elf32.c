@@ -105,11 +105,12 @@ void    print_symbol_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *str)
     }
 }
 
-void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_ft_nm_options *options)
+void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, size_t size, char *str, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
     // https://en.wikipedia.org/wiki/Insertion_sort
-    ssize_t i = 0, j = 0, k = 0;
-    size_t len_shdrs = 0, len_current = 0, len_before = 0;
+    if (!size)
+        return;
+    size_t i = 0, j = 0, k = 0, len_shdrs = 0, len_current = 0, len_before = 0;
     char *tab_lower[size];
     Elf32_Sym tmp;
     ft_bzero(&tmp, sizeof(Elf32_Sym));
@@ -125,7 +126,6 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
     char tmp_str[len_shdrs];
     ft_bzero(tmp_str, len_shdrs);
     i = 0;
-    len_current = 0;
 
     // make copy with lower string and alnum
     for (; i < size; i++)
@@ -133,8 +133,9 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
         j = 0;
         k = 0;
         len_current = ft_strlen((str + tab[i].st_name));
-        tab_lower[i] = ft_strnew(len_shdrs);
 
+        if ((tab_lower[i] = ft_strnew(len_shdrs)) == NULL)
+            print_error(ERROR_MALLOC, context);
         for (; k < len_current; k++)
         {
             if (ft_isalnum((str + tab[i].st_name)[k]) || (str + tab[i].st_name)[k] == '$')
@@ -149,9 +150,6 @@ void        ft_insert_sort_sym_array_32(Elf32_Sym *tab, int size, char *str, t_f
 	while (i < size)
 	{
         j = i;
-        
-        len_current = ft_strlen(str + tab[j].st_name);
-        len_before = ft_strlen(str + tab[j - 1].st_name);
         
         while (j > 0 && get_comp_sort_sym(tab_lower[j - 1], tab_lower[j], str + tab[j - 1].st_name, str + tab[j].st_name, tab[j - 1].st_value, tab[j].st_value, options))
         {
@@ -239,7 +237,6 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     Elf32_Shdr* shdr = (Elf32_Shdr*) ((char*) ptr + e_shoff); // get the section header
     Elf32_Shdr *symtab = NULL, *strtab = NULL; // init symbol tab and str tab
     Elf32_Sym *sym; // init symbols
-    short have_symtab = 0;
     unsigned long len_shdrs =  (context->st_size - e_shoff) / sizeof(Elf32_Shdr);
     size_t i = 0;
     char *shstrtab = (char*)(ptr + shdr[ehdr->e_shstrndx].sh_offset); // get the section header str tab
@@ -291,7 +288,7 @@ void    process_32(char *ptr, Elf32_Ehdr *ehdr, t_ft_nm_options *options, t_ft_n
     }
 
     if (!options->no_sort) // -p
-        ft_insert_sort_sym_array_32(array, len_array, str, options);
+        ft_insert_sort_sym_array_32(array, len_array, str, options, context);
 
     for (i = 0; i < len_array; i++) // print all symbols
         print_symbol_32(array[i], shdr, str);

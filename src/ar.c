@@ -41,7 +41,7 @@ void print_obj_file(char *name, char *ar_symtab, t_ft_nm_ctx *context)
 
 void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 {
-    ssize_t ar_size = 0;
+    size_t ar_size = 0;
     short is_last = 0, flag = 0;
     struct ar_hdr current_ar;
     off_t size = context->st_size;
@@ -53,14 +53,14 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
 	size -= SARMAG; // pass magic string
     short i = 0;
     ft_putchar('\n');
-    while (size >= sizeof(current_ar))
+    while (size >= (off_t)sizeof(current_ar))
     {
         ft_memcpy(&current_ar, ptr, sizeof(current_ar));
         ptr += sizeof(current_ar);
 
         ar_size = ft_atoi(current_ar.ar_size); // get current ar_size as number
 
-        if (size < (ar_size + sizeof(current_ar)))
+        if (size < (off_t)(ar_size + sizeof(current_ar)))
         {
             print_error(ERROR_AR_TRUNCATED, context);
             return;
@@ -73,8 +73,6 @@ void process_ar(char *ptr, t_ft_nm_options *options, t_ft_nm_ctx *context)
         context->should_exit = is_last && saved_should_exit;
         if (flag)
         {
-            if (!current_ar.ar_name)
-                return;
             print_obj_file(current_ar.ar_name, ar_symtab, context);
         
             // process as elf32 or elf64

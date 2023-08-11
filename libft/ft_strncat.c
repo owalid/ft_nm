@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strncat.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oel-ayad <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: oel-ayad <oel-ayad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/07 20:19:04 by oel-ayad          #+#    #+#             */
-/*   Updated: 2018/11/14 19:52:45 by oel-ayad         ###   ########.fr       */
+/*   Updated: 2023/08/11 22:01:42 by oel-ayad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ char	*ft_strncat(char *dest, const char *src, int nb)
 	int		i;
 	char	*result;
 
-	i = 0;
-	size = 0;
 	result = dest;
 	size = ft_strlen(result);
 	i = 0;

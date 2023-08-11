@@ -79,7 +79,6 @@ void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
 
 int main(int argc, char* argv[])
 {
-    char *ptr;
     int num_options = 0;
     t_ft_nm_options  options[1];
     t_ft_nm_ctx      context[1];
