@@ -1,7 +1,6 @@
 #include "ft_nm.h"
 #include "libft.h"
 
-// TODO REDO THIS FUNCTION
 void            get_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *type)
 {
     char  c;

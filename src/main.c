@@ -73,7 +73,8 @@ void process_file(t_ft_nm_options *options, t_ft_nm_ctx *context)
         free(context->filename);
         context->filename = NULL;
     }
-    close(context->fd);
+    if (context->fd > 0)
+        close(context->fd);
 }
 
 

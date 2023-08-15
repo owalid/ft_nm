@@ -20,7 +20,11 @@ void    print_error(char *message, t_ft_nm_ctx *context)
         context->filename = NULL;
     }
     if (context->should_exit)
+    {
+        if (context->fd > 0)
+            close(context->fd);
         exit(1);
+    }
 }
 
 void    get_formated_sym_value(unsigned int st_value, char *str, int size)
