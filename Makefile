@@ -6,8 +6,7 @@ SRC		= main.c \
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 
-CC		= cc -g
-CFLAGS	=
+CC		= cc
 CFLAGS	= -Wall -Wextra -Werror
 
 
