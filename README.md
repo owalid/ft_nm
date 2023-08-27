@@ -6,14 +6,17 @@
 - [https://www.sco.com/developers/gabi/latest/contents.html](https://www.sco.com/developers/gabi/latest/contents.html)
 - [https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf](https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf)
 - [https://github.com/upx/upx.git](https://github.com/upx/upx.git)
-- [https://fr.wikipedia.org/wiki/Executable_and_Linkable_Format](https://fr.wikipedia.org/wiki/Executable_and_Linkable_Format)
+- [https://en.wikipedia.org/wiki/Executable_and_Linkable_Format](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format)
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/ELF_Executable_and_Linkable_Format_diagram_by_Ange_Albertini.png/2880px-ELF_Executable_and_Linkable_Format_diagram_by_Ange_Albertini.png">
+#### Note for debuging
 
 ```
 scan-build-12 make re
 scan-view-12 /tmp/....
 ```
+
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/ELF_Executable_and_Linkable_Format_diagram_by_Ange_Albertini.png/2880px-ELF_Executable_and_Linkable_Format_diagram_by_Ange_Albertini.png">
 
 ## Elf header
 
